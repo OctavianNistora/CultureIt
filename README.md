@@ -1,4 +1,4 @@
-# MSA-Project - Culture It!
+# Mobile Systems and Applications project - Culture It!
 
 An app that allows the user to see a map with all the cultural events in the area (art galleries, special expositions in museums, Theater plays etc.).
 Its scope is to make culture more accesible to the general public by making it easy to search and find something that is liked by the user, or just see what is happening in town around the time of use.
