@@ -14,3 +14,5 @@ Requirements: https://pastebin.com/i7MJXQgn
 Figma wireframe: https://www.figma.com/design/3TT5IjQeYwg0h2qyTfxxVO/Culture-IT!?node-id=0-1&t=glfuuQ0iwwqIfhI7-1
 
 ![High-level diagram](https://github.com/user-attachments/assets/1447abe0-25e4-4235-913b-7f5ca717ecc0)
+
+![Database ERD](https://github.com/user-attachments/assets/7546a16b-7227-473d-a0a8-d11952d0debb)
