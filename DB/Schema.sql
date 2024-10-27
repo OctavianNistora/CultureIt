@@ -1,0 +1,52 @@
+CREATE TABLE USER (
+    user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    is_publisher BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE EVENTS (
+    event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    main_image BIGINT,
+    title VARCHAR(255) NOT NULL,
+    created_by BIGINT NOT NULL,
+    description TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    latitude DECIMAL(10, 7) NOT NULL,
+    longitude DECIMAL(10, 7) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    price DECIMAL(8, 2) DEFAULT 0.00,
+    FOREIGN KEY (main_image) REFERENCES EVENTPHOTOS(photo_id) ON DELETE SET NULL,
+    FOREIGN KEY (created_by) REFERENCES USER(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE WISHLIST (
+    user_id BIGINT,
+    event_id BIGINT,
+    PRIMARY KEY (user_id, event_id),
+    FOREIGN KEY (user_id) REFERENCES USER(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES EVENTS(event_id) ON DELETE CASCADE
+);
+
+CREATE TABLE VISITED (
+    user_id BIGINT,
+    event_id BIGINT,
+    PRIMARY KEY (user_id, event_id),
+    FOREIGN KEY (user_id) REFERENCES USER(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES EVENTS(event_id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE EVENTPHOTOS (
+    photo_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    event_id BIGINT NOT NULL,
+    photo_url VARCHAR(2048) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES EVENTS(event_id) ON DELETE CASCADE
+);
