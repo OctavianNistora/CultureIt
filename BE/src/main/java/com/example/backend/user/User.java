@@ -25,16 +25,6 @@ public class User {
     private LocalDate date_of_birth;
     private Boolean is_publisher;
 
-    public User(int id, String email, String password, String first_name, String last_name, LocalDate date_of_birth, Boolean is_publisher) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.date_of_birth = date_of_birth;
-        this.is_publisher = is_publisher;
-    }
-
     public User(String email, String password, String first_name, String last_name, LocalDate date_of_birth, Boolean is_publisher) {
         this.email = email;
         this.password = password;
@@ -45,6 +35,13 @@ public class User {
     }
 
     public User() {
+        this.id = 0;
+        this.email = "";
+        this.password = "";
+        this.first_name = "";
+        this.last_name = "";
+        this.date_of_birth = LocalDate.now();
+        this.is_publisher = false;
     }
 
     public int getId() {
