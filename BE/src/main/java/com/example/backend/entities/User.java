@@ -1,9 +1,13 @@
-package com.example.backend.user;
+package com.example.backend.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Getter
+@Setter
 @Entity
 @Table(name="user_info")
 public class User {
@@ -18,6 +22,7 @@ public class User {
             generator = "user_sequence"
     )
     private int id;
+    private String username;
     private String email;
     private String password;
     private String first_name;
@@ -25,79 +30,25 @@ public class User {
     private LocalDate date_of_birth;
     private Boolean is_publisher;
 
-    public User(String email, String password, String first_name, String last_name, LocalDate date_of_birth, Boolean is_publisher) {
+    public User(String username, String email, String password, String first_name, String last_name, LocalDate date_of_birth) {
+        this.username = username;
         this.email = email;
         this.password = password;
         this.first_name = first_name;
         this.last_name = last_name;
         this.date_of_birth = date_of_birth;
-        this.is_publisher = is_publisher;
+        this.is_publisher = false;
     }
 
     public User() {
         this.id = 0;
+        this.username = "";
         this.email = "";
         this.password = "";
         this.first_name = "";
         this.last_name = "";
         this.date_of_birth = LocalDate.now();
         this.is_publisher = false;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getFirst_name() {
-        return first_name;
-    }
-
-    public void setFirst_name(String first_name) {
-        this.first_name = first_name;
-    }
-
-    public String getLast_name() {
-        return last_name;
-    }
-
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
-    }
-
-    public LocalDate getDate_of_birth() {
-        return date_of_birth;
-    }
-
-    public void setDate_of_birth(LocalDate date_of_birth) {
-        this.date_of_birth = date_of_birth;
-    }
-
-    public Boolean getIs_publisher() {
-        return is_publisher;
-    }
-
-    public void setIs_publisher(Boolean is_publisher) {
-        this.is_publisher = is_publisher;
     }
 
     @Override

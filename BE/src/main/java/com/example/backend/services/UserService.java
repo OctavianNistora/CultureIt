@@ -1,7 +1,11 @@
-package com.example.backend.user;
+package com.example.backend.services;
 
+import com.example.backend.dtos.UserCreationDTO;
+import com.example.backend.dtos.UserPropValuePairDTO;
+import com.example.backend.entities.User;
+import com.example.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,18 +17,22 @@ public class UserService
     private final UserRepository userRepository;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
     public UserService(UserRepository userRepository)
     {
         this.userRepository = userRepository;
     }
 
-    public User addNewUser(UserCreateRecord user)
+
+    public User addNewUser(UserCreationDTO user)
     {
-        User newUser = new User(user.email(), user.password(), user.first_name(), user.last_name(), user.date_of_birth(), user.is_publisher());
+        User newUser = new User(user.username(), user.email(), passwordEncoder.encode(user.password()), user.first_name(), user.last_name(), user.date_of_birth());
         try
         {
-            User savedUser = userRepository.save(newUser);
-            return savedUser;
+            return userRepository.save(newUser);
         } catch (Exception e)
         {
             return null;
@@ -42,7 +50,7 @@ public class UserService
         return userRepository.findAll();
     }
 
-    public boolean updateUser(int id, UserPropValuePairRecord[] userPropValuePairRecords)
+    public boolean updateUser(int id, UserPropValuePairDTO[] userPropValuePairDTOS)
     {
         User user = userRepository.findById(id).orElse(null);
         if (user == null)
@@ -50,27 +58,30 @@ public class UserService
             return false;
         }
 
-        for (UserPropValuePairRecord userPropValuePairRecord : userPropValuePairRecords)
+        for (UserPropValuePairDTO userPropValuePairDTO : userPropValuePairDTOS)
         {
-            switch (userPropValuePairRecord.property())
+            switch (userPropValuePairDTO.property())
             {
+                case "username":
+                    user.setUsername(userPropValuePairDTO.value());
+                    break;
                 case "email":
-                    user.setEmail(userPropValuePairRecord.value());
+                    user.setEmail(userPropValuePairDTO.value());
                     break;
                 case "password":
-                    user.setPassword(userPropValuePairRecord.value());
+                    user.setPassword(userPropValuePairDTO.value());
                     break;
                 case "first_name":
-                    user.setFirst_name(userPropValuePairRecord.value());
+                    user.setFirst_name(userPropValuePairDTO.value());
                     break;
                 case "last_name":
-                    user.setLast_name(userPropValuePairRecord.value());
+                    user.setLast_name(userPropValuePairDTO.value());
                     break;
                 case "date_of_birth":
-                    user.setDate_of_birth(LocalDate.parse(userPropValuePairRecord.value()));
+                    user.setDate_of_birth(LocalDate.parse(userPropValuePairDTO.value()));
                     break;
                 case "is_publisher":
-                    user.setIs_publisher(Boolean.parseBoolean(userPropValuePairRecord.value()));
+                    user.setIs_publisher(Boolean.parseBoolean(userPropValuePairDTO.value()));
                     break;
                 default:
                     return false;
