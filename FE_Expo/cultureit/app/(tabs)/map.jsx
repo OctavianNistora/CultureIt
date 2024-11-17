@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import {useLocalSearchParams, router} from 'expo-router';
 
 const Map = () => {
 
@@ -11,10 +12,25 @@ const Map = () => {
         longitudeDelta: 0.05,
     });
 
-    const [markers, setMarkers] = useState([
+    // const [markers, setMarkers] = useState([
+    //     {
+    //         id: 1,
+    //         latlng: { latitude: 45.7552003, longitude: 21.2272141 },
+    //         title: 'Cover me softly',
+    //         description: 'Cover me softly',
+    //     },
+    //     {
+    //         id: 2,
+    //         latlng: { latitude: 45.7539753, longitude: 21.2258655 },
+    //         title: 'Multisenzorial',
+    //         description: 'Multisenzorial',
+    //     },
+    // ]);
+
+    const markers = [
         {
             id: 1,
-            latlng: { latitude: 45.7552003, longitude: 21.2272141 },
+            latlng: { latitude: 45.7552003, longitude: 21.2272141},
             title: 'Cover me softly',
             description: 'Cover me softly',
         },
@@ -24,7 +40,7 @@ const Map = () => {
             title: 'Multisenzorial',
             description: 'Multisenzorial',
         },
-    ]);
+    ];
 
     const mapRef = useRef(null);
 
@@ -43,6 +59,7 @@ const Map = () => {
         },
     });
 
+
     return (
         <View style={styles.container}>
             <MapView
@@ -59,6 +76,13 @@ const Map = () => {
                         coordinate={marker.latlng}
                         title={marker.title}
                         description={marker.description}
+                        onPress={() => router.push({
+                            pathname: '../details/details',
+                            params:{
+                                title: marker.title,
+                                description: marker.description
+                            }
+                        })}
                     />
                 ))}
             </MapView>
