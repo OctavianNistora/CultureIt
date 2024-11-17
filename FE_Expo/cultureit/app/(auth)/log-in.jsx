@@ -2,6 +2,8 @@ import {View, Text, ScrollView} from 'react-native'
 import React, {useState} from 'react'
 import {SafeAreaView} from "react-native-safe-area-context";
 import FormField from "../../components/FormField";
+import CustomButton from "@/components/CustomButton";
+import {Link, router} from "expo-router";
 
 const LogIn = () => {
 
@@ -10,10 +12,16 @@ const LogIn = () => {
         password: ""
     })
 
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const submit = () => {
+
+    }
+
     return (
       <SafeAreaView className="bg-white h-full">
         <ScrollView>
-            <View className="w-full justify-center min-h-[60vh] px-4 my-6">
+            <View className="w-full justify-center min-h-[85vh] px-4 my-6">
                 <Text className = "text-5xl font-inter_bold text-primary text-center">
                     Culture It!
                 </Text>
@@ -34,6 +42,25 @@ const LogIn = () => {
                         password: e})}
                     otherStyles="mt-7"
                 />
+
+                <CustomButton
+                    title = "Log In"
+                    handlePress={submit}
+                    containerStyles="mt-7"
+                    isLoading = {isSubmitting}
+                    handlePress={() => router.push('/map')}
+                />
+
+                <View className="justifiy-center items-center mt-20 gap-2">
+                    <Text className="text-lg text-primary font-inter_regular">
+                        Don't have an account?
+                    </Text>
+
+                    <Link href="/sign-up " className="text-lg font-inter_bold text-primary">
+                        Sign Up
+                    </Link>
+                </View>
+
             </View>
         </ScrollView>
       </SafeAreaView>

@@ -30,6 +30,12 @@ const TabIcon = ({icon, color, name, focused}) => {
 const TabsLayout = () => {
   return (
    <>
+   <View
+       style={{
+           height: 75,
+           backgroundColor: '#F7BA4B',
+       }}
+   />
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,

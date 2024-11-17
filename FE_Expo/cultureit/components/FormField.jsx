@@ -16,16 +16,15 @@ handleChangeText, otherStyles, ...props}) => {
             ${isFocused ? 'border-black' : 'border-lighter_primary'} items-center`}>
 
                 <TextInput
-                    className="flex-1 text-primary font-inter_regular text-base"
+                    className="flex-1 text-primary font-inter_regular text-base w-full"
                     value = {value}
                     placeholder={placeholder}
                     placeholderTextColor="white"
                     onChange={handleChangeText}
                     secureTextEntry={title === "Password" && !showPassword}
-                    onFocus={() => setIsFocused(true)}  // When focused, update state
+                    onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                 />
-
             </View>
         </View>
     )
