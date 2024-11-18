@@ -4,10 +4,14 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import FormField from "../../components/FormField";
 import CustomButton from "@/components/CustomButton";
 import {Link} from "expo-router";
+import axios from "axios";
 
 const SignUp = () => {
 
     const [form, setForm] = useState({
+        firstName: "",
+        lastName: "",
+        dateOfBirth: "",
         email: "",
         password: ""
     })
@@ -15,6 +19,15 @@ const SignUp = () => {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const submit = () => {
+        const {confirmPassword, ...payload} = form
+        payload.username = "REMOVE ME"
+        console.log(payload)
+        axios({
+            url: "http://192.168.60.51:8080/users",
+            method: "POST",
+            data: payload,
+        }).then((res) => console.log("success", res))
+            .catch((err) => console.log("error", err))
 
     }
 
@@ -77,9 +90,9 @@ const SignUp = () => {
 
                     <CustomButton
                         title = "Sign Up"
-                        handlePress={submit}
+                        handlePress={submit}r
                         containerStyles="mt-7"
-                        isLoading = {isSubmitting}
+                        isDisabled = {isSubmitting}
                     />
 
                     <View className="justifiy-center items-center mt-20 gap-2">

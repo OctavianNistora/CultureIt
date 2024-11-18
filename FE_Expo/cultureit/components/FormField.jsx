@@ -20,7 +20,7 @@ handleChangeText, otherStyles, ...props}) => {
                     value = {value}
                     placeholder={placeholder}
                     placeholderTextColor="white"
-                    onChange={handleChangeText}
+                    onChangeText={handleChangeText}
                     secureTextEntry={title === "Password" && !showPassword}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
