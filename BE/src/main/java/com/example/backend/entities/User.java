@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name="user_info")
+@Table(name="users")
 public class User {
     @Id
     @SequenceGenerator(
@@ -22,7 +22,6 @@ public class User {
             generator = "user_sequence"
     )
     private int id;
-    private String username;
     private String email;
     private String password;
     private String first_name;
@@ -30,8 +29,7 @@ public class User {
     private LocalDate date_of_birth;
     private Boolean is_publisher;
 
-    public User(String username, String email, String password, String first_name, String last_name, LocalDate date_of_birth) {
-        this.username = username;
+    public User(String email, String password, String first_name, String last_name, LocalDate date_of_birth) {
         this.email = email;
         this.password = password;
         this.first_name = first_name;
@@ -42,7 +40,6 @@ public class User {
 
     public User() {
         this.id = 0;
-        this.username = "";
         this.email = "";
         this.password = "";
         this.first_name = "";
