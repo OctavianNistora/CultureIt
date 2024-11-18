@@ -1,12 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const Favorites = () => {
+export default function Search() {
   return (
     <View>
-      <Text>Favorites</Text>
+      <Text>Search</Text>
     </View>
   )
 }
-
-export default Favorites

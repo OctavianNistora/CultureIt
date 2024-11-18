@@ -1,12 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native'
-import { Slot, SplashScreen, Stack } from 'expo-router'
+import { SplashScreen, Stack } from 'expo-router'
 import "../global.css"
 import { useFonts } from 'expo-font'
 import { useEffect } from 'react'
 
 SplashScreen.preventAutoHideAsync();
 
-const RootLayout = () => {
+export default function RootLayout() {
 
   const[fontsLoaded, error] = useFonts({
     "Inter-Regular": require("../assets/fonts/Inter_18pt-Regular.ttf"),
@@ -29,5 +28,3 @@ const RootLayout = () => {
     </Stack>
     )
 }
-
-export default RootLayout

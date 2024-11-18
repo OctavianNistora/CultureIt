@@ -3,7 +3,7 @@ import {Stack} from "expo-router";
 import {StatusBar} from "expo-status-bar";
 import "../../global.css"
 
-const AuthLayout = () => {
+export default function AuthLayout() {
   return (
     <>
       <Stack>
@@ -27,5 +27,3 @@ const AuthLayout = () => {
     </>
   )
 }
-
-export default AuthLayout

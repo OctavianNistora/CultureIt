@@ -1,9 +1,9 @@
 import { StyleSheet, View } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import {useLocalSearchParams, router} from 'expo-router';
+import React, { useState, useRef } from 'react';
+import MapView, {Marker, PROVIDER_GOOGLE, Region} from 'react-native-maps';
+import {router} from 'expo-router';
 
-const Map = () => {
+export default function Map() {
 
     const [region, setRegion] = useState({
         latitude: 45.760696,
@@ -22,8 +22,8 @@ const Map = () => {
     //     {
     //         id: 2,
     //         latlng: { latitude: 45.7539753, longitude: 21.2258655 },
-    //         title: 'Multisenzorial',
-    //         description: 'Multisenzorial',
+    //         title: 'Multisensorial',
+    //         description: 'Multisensorial',
     //     },
     // ]);
 
@@ -37,17 +37,17 @@ const Map = () => {
         {
             id: 2,
             latlng: { latitude: 45.7539753, longitude: 21.2258655 },
-            title: 'Multisenzorial',
-            description: 'Multisenzorial',
+            title: 'Multisensorial',
+            description: 'Multisensorial',
         },
     ];
 
     const mapRef = useRef(null);
 
 
-    const onRegionChange = (region) => {
+    function onRegionChange(region: Region) {
         setRegion(region);
-    };
+    }
 
     const styles = StyleSheet.create({
         container: {
@@ -77,7 +77,7 @@ const Map = () => {
                         title={marker.title}
                         description={marker.description}
                         onPress={() => router.push({
-                            pathname: '../details/details',
+                            pathname: '/details/details',
                             params:{
                                 title: marker.title,
                                 description: marker.description
@@ -89,5 +89,3 @@ const Map = () => {
         </View>
     );
 };
-
-export default Map;

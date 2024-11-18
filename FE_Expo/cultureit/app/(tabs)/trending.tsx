@@ -1,12 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const Search = () => {
+export default function Trending(){
   return (
     <View>
-      <Text>Search</Text>
+      <Text>Trending</Text>
     </View>
   )
 }
-
-export default Search

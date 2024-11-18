@@ -1,12 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const Trending = () => {
+export default function Favorites(){
   return (
     <View>
-      <Text>Trending</Text>
+      <Text>Favorites</Text>
     </View>
   )
 }
-
-export default Trending

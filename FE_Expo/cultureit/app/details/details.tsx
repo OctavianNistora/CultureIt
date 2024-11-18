@@ -1,8 +1,8 @@
 import { View, Text } from 'react-native';
-import {useGlobalSearchParams, useLocalSearchParams} from 'expo-router';
+import {useLocalSearchParams} from 'expo-router';
 import "../../global.css"
 
-const Details = () => {
+export default function Details(){
     const { title, description } = useLocalSearchParams();
     console.log(title, description);
     return (
@@ -12,5 +12,3 @@ const Details = () => {
         </View>
     );
 };
-
-export default Details;
