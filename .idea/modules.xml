@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/CultureIt.iml" filepath="$PROJECT_DIR$/.idea/CultureIt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BE/backend.iml" filepath="$PROJECT_DIR$/BE/backend.iml" />
       <module fileurl="file://$PROJECT_DIR$/BE/cultureit.backend.iml" filepath="$PROJECT_DIR$/BE/cultureit.backend.iml" />
       <module fileurl="file://$PROJECT_DIR$/FE/cultureit.frontend.iml" filepath="$PROJECT_DIR$/FE/cultureit.frontend.iml" />
     </modules>

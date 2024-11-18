@@ -29,7 +29,7 @@ public class UserService
 
     public User addNewUser(UserCreationDTO user)
     {
-        User newUser = new User(user.username(), user.email(), passwordEncoder.encode(user.password()), user.first_name(), user.last_name(), user.date_of_birth());
+        User newUser = new User(user.email(), passwordEncoder.encode(user.password()), user.first_name(), user.last_name(), user.date_of_birth());
         try
         {
             return userRepository.save(newUser);
@@ -62,9 +62,6 @@ public class UserService
         {
             switch (userPropValuePairDTO.property())
             {
-                case "username":
-                    user.setUsername(userPropValuePairDTO.value());
-                    break;
                 case "email":
                     user.setEmail(userPropValuePairDTO.value());
                     break;

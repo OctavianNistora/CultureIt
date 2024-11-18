@@ -29,10 +29,10 @@ public class AuthController {
     @PostMapping("/token")
     public String loginUser(@RequestBody @Valid UserAuthentificationDTO authenticationRequest) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authenticationRequest.username(), authenticationRequest.password())
+                new UsernamePasswordAuthenticationToken(authenticationRequest.email(), authenticationRequest.password())
         );
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.username());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.email());
 
         return jwtUtil.generateToken(userDetails);
     }

@@ -35,14 +35,13 @@ public class UserController
 
     @Operation(summary = "Add a new user")
     @ApiResponse(responseCode = "201", description = "User created",
-            content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = User.class))})
+            content = @Content)
     @ApiResponse(responseCode = "400", description = "Invalid user format",
             content = @Content)
     @PostMapping
     public ResponseEntity<User> addUser(@RequestBody UserCreationDTO user)
     {
-        if (user.username() == null || user.email() == null || user.password() == null)
+        if (user.email() == null || user.password() == null)
         {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -53,7 +52,7 @@ public class UserController
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get all users")
@@ -113,14 +112,22 @@ public class UserController
 
     @Operation(summary = "Delete user by id")
     @SecurityRequirement(name = "Bearer Authentication")
-    @ApiResponse(responseCode = "204", description = "User deleted",
+    @ApiResponse(responseCode = "200", description = "User deleted",
+            content = @Content)
+    @ApiResponse(responseCode = "404", description = "User not found",
             content = @Content)
     @DeleteMapping(path = "{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable int id)
     {
-        userService.deleteUser(id);
+        try
+        {
+            userService.deleteUser(id);
+        }catch (Exception e)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
