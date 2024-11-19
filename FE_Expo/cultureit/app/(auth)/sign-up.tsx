@@ -5,13 +5,14 @@ import {FormField} from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import {Link, router} from "expo-router";
 import axios from "axios";
+import { DateFormField } from "@/components/DateFormField";
 
 export default function SignUp() {
 
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
-    date_of_birth: "",
+    date_of_birth: new Date(),
     email: "",
     password: "",
     confirmPassword: "",
@@ -23,6 +24,7 @@ export default function SignUp() {
     setIsSubmitting(true);
 
     const {confirmPassword, ...payload} = form
+    //payload.date_of_birth = payload.date_of_birth.toString();
 
     axios({
       url: `${process.env.EXPO_PUBLIC_API_URL}/users`,
@@ -64,15 +66,17 @@ export default function SignUp() {
             autoComplete="family-name"
           />
 
-          <FormField
-            title="Date of Birth"
-            value={form.date_of_birth}
-            handleChangeText={(e) => setForm({
-              ...form,
-              date_of_birth: e
-            })}
-            otherStyles="mt-7"
-          />
+            <DateFormField
+                title="Date of Birth"
+                value={form.date_of_birth}
+                handleChangeDate={(date) =>
+                    setForm({
+                        ...form,
+                        date_of_birth: date,
+                    })
+                }
+                placeholder="Select your date of birth"
+            />
 
           <FormField
             title="Email"
