@@ -1,10 +1,13 @@
 package com.example.backend.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -13,21 +16,30 @@ import java.time.LocalDate;
 public class User {
     @Id
     @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName = "user_sequence",
+            name = "users_sequence",
+            sequenceName = "users_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "user_sequence"
+            generator = "users_sequence"
     )
     private int id;
+    @NotBlank
     private String email;
+    @NotBlank
     private String password;
     private String first_name;
     private String last_name;
+    @Column(columnDefinition = "DATE")
     private LocalDate date_of_birth;
+    @NotNull
     private Boolean is_publisher;
+
+    @ManyToMany(mappedBy = "wishers")
+    private Set<Event> events_wishlist;
+    @ManyToMany(mappedBy = "visitors")
+    private Set<Event> events_visited;
 
     public User(String email, String password, String first_name, String last_name, LocalDate date_of_birth) {
         this.email = email;
