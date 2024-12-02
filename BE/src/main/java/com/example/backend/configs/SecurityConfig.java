@@ -53,8 +53,8 @@ public class SecurityConfig
                                 "/error").permitAll()
                 ).authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .requestMatchers(HttpMethod.POST,
-                                "/users",
-                                "/token").permitAll()
+                                "/v1/users",
+                                "/v1/auth/token").permitAll()
                 ).authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .anyRequest().authenticated()
                 ).sessionManagement((sessionManagement) -> sessionManagement
