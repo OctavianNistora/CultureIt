@@ -38,6 +38,8 @@ public class UserController
             content = @Content)
     @ApiResponse(responseCode = "400", description = "Invalid user format",
             content = @Content)
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content)
     @PostMapping
     public ResponseEntity<User> addUser(@RequestBody UserCreationDTO user)
     {
