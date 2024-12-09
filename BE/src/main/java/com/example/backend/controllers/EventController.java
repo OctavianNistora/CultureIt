@@ -66,7 +66,7 @@ public class EventController
                                                        @RequestParam(required = false) Integer page)
     {
         List<Event> events = eventService.getEvents(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, page);
-        List<MapPointDTO> mapPoints = events.stream().map(event -> new MapPointDTO(event.getLatitude(), event.getLongitude())).toList();
+        List<MapPointDTO> mapPoints = events.stream().map(event -> new MapPointDTO(event.getId(), event.getLatitude(), event.getLongitude())).toList();
         return new ResponseEntity<>(mapPoints, HttpStatus.OK);
     }
 }
