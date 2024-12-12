@@ -27,7 +27,7 @@ export default function SignUp() {
     //payload.date_of_birth = payload.date_of_birth.toString();
 
     axios({
-      url: `${process.env.EXPO_PUBLIC_API_URL}/users`,
+      url: `${process.env.EXPO_PUBLIC_API_URL}/v1/users`,
       method: "POST",
       data: payload,
     }).then(() => router.push('/log-in'))
