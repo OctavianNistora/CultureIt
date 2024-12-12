@@ -10,7 +10,7 @@ const eventData = {
     price: '$15.00',
 };
 
-export default function Details() {
+export default function Summary() {
     const { title, description } = useLocalSearchParams();
     const [isFavorite, setIsFavorite] = useState(false);
 
@@ -44,7 +44,7 @@ export default function Details() {
             {/* Event Description */}
             <Text style={styles.eventDescription}>{description}</Text>
 
-            {/* Event Details */}
+            {/* Event Summary */}
             <View style={styles.detailsContainer}>
                 <Text style={styles.detailText}>
                     <Text style={styles.bold}>Location:</Text> {eventData.location}
@@ -60,8 +60,8 @@ export default function Details() {
                 </Text>
             </View>
 
-            {/* More Details Button */}
-            <Button title="More Details" onPress={handleMoreDetails} color="#F7BA4B" />
+            {/* More Summary Button */}
+            <Button title="More Summary" onPress={handleMoreDetails} color="#F7BA4B" />
         </ScrollView>
     );
 }

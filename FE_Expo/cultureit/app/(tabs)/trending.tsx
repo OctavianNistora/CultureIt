@@ -51,7 +51,7 @@ export default function Trending() {
         <TouchableOpacity
             onPress={() =>
                 router.push({
-                    pathname: '/details/details',
+                    pathname: '/details/summary',
                     params: {
                         title: item.name,
                         description: item.description,

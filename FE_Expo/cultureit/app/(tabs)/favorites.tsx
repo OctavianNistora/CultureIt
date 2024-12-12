@@ -51,7 +51,7 @@ export default function Favorites() {
     // Handle navigation to the event details page
     const navigateToDetails = (eventId: number) => {
         router.push({
-            pathname: `/details/details`, // Assuming dynamic path is being used
+            pathname: `/details/summary`, // Assuming dynamic path is being used
             params: { eventId },
         });
     };

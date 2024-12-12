@@ -7,18 +7,8 @@ import { router } from 'expo-router';
 // Define the interface for the event markers
 interface EventMarker {
     id: number;
-    mainImage: string;
-    latlng: {
-        latitude: number;
-        longitude: number;
-    };
-    name: string;
-    description: string;
-    location: string;
-    datePeriod: string;
-    openingHours: string;
-    price: number;
-    isWishlisted: boolean
+    latitude: number;
+    longitude: number;
 }
 
 export default function Map() {
@@ -43,52 +33,22 @@ export default function Map() {
                     `${process.env.EXPO_PUBLIC_API_URL}/v1/events/map-points`,
                     {
                         headers: {
-                            Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0MDIyNDI1LCJleHAiOjE3MzQyODE2MjV9.I0sWvinKIVvxyaq8QwYOcNm_6slgmri8AvXR-BzJ-uzDQoL1K2mee6d26Fv-eBApqn-2Bqy8Jutoja8wq089rA`,
+                            Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0MDI2Nzc0LCJleHAiOjE3MzQyODU5NzR9.AKctQAwDQ3HV_uZVnd51CBjJRUIYfsh9l_OMtUVc6qaAsBKluCmlzXYKaqti1ciNcviuS3oA7UM6wXdXU_DMVQ`,
                         }
                     }
                 );
 
 
-                // Fetch summary details for each event
-                const eventSummaries = await Promise.all(response.data.map((event: { id: number }) =>
-                    axios.get(
-                        `${process.env.EXPO_PUBLIC_API_URL}/v1/events/${event.id}/summary`,
-                        {
-                            headers: {
-                                Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0MDIyNDI1LCJleHAiOjE3MzQyODE2MjV9.I0sWvinKIVvxyaq8QwYOcNm_6slgmri8AvXR-BzJ-uzDQoL1K2mee6d26Fv-eBApqn-2Bqy8Jutoja8wq089rA`,
-                            }
-                        }
-                    )
-                ));
-                console.log(eventSummaries[0].data);
                 // Map the event summaries into the marker format
-                const eventMarkers: EventMarker[] = eventSummaries.map((eventSummaryResponse) => {
-                    const event = eventSummaryResponse.data; // Event data from the summary API
-                    return {
-                        id: event.id,
-                        latlng: {
-                            latitude: event.latitude,
-                            longitude: event.longitude,
-                        },
-                        name: event.name,
-                        description: event.description,
-                        location: event.location,
-                        datePeriod: `${event.startDate} - ${event.endDate}`,
-                        openingHours: `${event.startTime} - ${event.endTime}`,
-                        price: event.price,
-                        mainImage: event.mainImage,
-                        isWishlisted: event.isWishlisted
-                    };
-                });
+                const eventMarkers: EventMarker[] = response.data;
 
                 setMarkers(eventMarkers);
             } catch (error) {
-                console.error('Error fetching event summaries:', error);
+                console.error('Error fetching map points', error);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchEventData();
     }, []);
 
@@ -115,7 +75,7 @@ export default function Map() {
             </View>
         );
     }
-    //console.log(markers);
+    console.log(markers);
     return (
         <View style={styles.container}>
             <MapView
@@ -128,18 +88,11 @@ export default function Map() {
                 {markers.map((marker) => (
                     <Marker
                         key={marker.id}
-                        coordinate={marker.latlng}
-                        title={marker.name}
-                        description={marker.description}
+                        coordinate={{latitude: marker.latitude, longitude: marker.longitude}}
                         onPress={() => router.push({
-                            pathname: '/details/details',
+                            pathname: '/details/summary',
                             params: {
-                                title: marker.name,
-                                description: marker.description,
-                                location: marker.location,
-                                datePeriod: marker.datePeriod,
-                                openingHours: marker.openingHours,
-                                price: marker.price,
+                                id: marker.id,
                             },
                         })}
                     />
