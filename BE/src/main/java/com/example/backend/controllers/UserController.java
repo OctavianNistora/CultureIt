@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "users")
+@RequestMapping(path = "v1/users")
 @SecurityRequirements()
 public class UserController
 {
@@ -37,6 +37,8 @@ public class UserController
     @ApiResponse(responseCode = "201", description = "User created",
             content = @Content)
     @ApiResponse(responseCode = "400", description = "Invalid user format",
+            content = @Content)
+    @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content)
     @PostMapping
     public ResponseEntity<User> addUser(@RequestBody UserCreationDTO user)
