@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 interface Event {
     id: number;
     name: string;
-    photo: any; // Local image source
+    photo: any;
     description: string;
     location: string;
     datePeriod: string;
@@ -29,7 +29,7 @@ export default function Trending() {
         {
             id: 2,
             name: 'Music Festival',
-            photo: require('../../assets/images/music_festival.jpg'), // Local image reference
+            photo: require('../../assets/images/music_festival.jpg'),
             description: 'Live music performances.',
             location: 'City Park',
             datePeriod: 'Feb 10, 2024 - Feb 12, 2024',
@@ -38,7 +38,7 @@ export default function Trending() {
         {
             id: 3,
             name: 'Food Fair',
-            photo: require('../../assets/images/food_fair.png'), // Local image reference
+            photo: require('../../assets/images/food_fair.png'),
             description: 'Taste the best local foods.',
             location: 'Food Plaza, Central Square',
             datePeriod: 'Mar 5, 2024 - Mar 10, 2024',
