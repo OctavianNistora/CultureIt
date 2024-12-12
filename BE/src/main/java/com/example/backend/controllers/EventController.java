@@ -1,11 +1,10 @@
 package com.example.backend.controllers;
 
 import com.example.backend.dtos.EventCreationDTO;
+import com.example.backend.dtos.EventDetailsDTO;
+import com.example.backend.dtos.EventSummaryDTO;
 import com.example.backend.dtos.MapPointDTO;
-import com.example.backend.entities.Event;
-import com.example.backend.entities.User;
 import com.example.backend.services.EventService;
-import com.example.backend.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,12 +25,10 @@ import java.util.List;
 @SecurityRequirement(name = "Bearer Authentication")
 public class EventController
 {
-    private final UserService userService;
     private final EventService eventService;
 
-    public EventController(UserService userService, EventService eventService)
+    public EventController(EventService eventService)
     {
-        this.userService = userService;
         this.eventService = eventService;
     }
 
@@ -45,8 +42,7 @@ public class EventController
     @PostMapping
     public void createEvent(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody EventCreationDTO event)
     {
-        User user = userService.getUserByEmail(userDetails.getUsername());
-        eventService.addNewEvent(event, user);
+        eventService.addNewEvent(event, userDetails.getUsername());
     }
 
     @Operation(summary = "Get events")
@@ -65,8 +61,37 @@ public class EventController
                                                        @RequestParam(required = false) Double latitudeBefore,
                                                        @RequestParam(required = false) Integer page)
     {
-        List<Event> events = eventService.getEvents(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, page);
-        List<MapPointDTO> mapPoints = events.stream().map(event -> new MapPointDTO(event.getId(), event.getLatitude(), event.getLongitude())).toList();
+        List<MapPointDTO> mapPoints = eventService.getMapPoints(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, page);
         return new ResponseEntity<>(mapPoints, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get event summary")
+    @ApiResponse(responseCode = "200", description = "Event summary retrieved",
+            content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EventSummaryDTO.class))})
+    @ApiResponse(responseCode = "400", description = "Invalid event ID",
+            content = @Content)
+    @ApiResponse(responseCode = "401", description = "Unauthorized",
+            content = @Content)
+    @GetMapping("/{eventId}/summary")
+    public ResponseEntity<EventSummaryDTO> getEventSummary(@AuthenticationPrincipal UserDetails userDetails, @PathVariable int eventId)
+    {
+        EventSummaryDTO eventSummary = eventService.getEventSummary(eventId, userDetails.getUsername());
+        return new ResponseEntity<>(eventSummary, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get event details")
+    @ApiResponse(responseCode = "200", description = "Event details retrieved",
+            content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EventDetailsDTO.class))})
+    @ApiResponse(responseCode = "400", description = "Invalid event ID",
+            content = @Content)
+    @ApiResponse(responseCode = "401", description = "Unauthorized",
+            content = @Content)
+    @GetMapping("/{eventId}/details")
+    public ResponseEntity<EventDetailsDTO> getEventDetails(@PathVariable int eventId)
+    {
+        EventDetailsDTO eventDetails = eventService.getEventDetails(eventId);
+        return new ResponseEntity<>(eventDetails, HttpStatus.OK);
     }
 }

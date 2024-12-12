@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -25,6 +26,7 @@ public class User {
             generator = "users_sequence"
     )
     private int id;
+    @Column(unique = true)
     @NotBlank
     private String email;
     @NotBlank
@@ -37,9 +39,9 @@ public class User {
     private Boolean is_publisher;
 
     @ManyToMany(mappedBy = "wishers")
-    private Set<Event> events_wishlist;
+    private Set<Event> events_wishlist = new HashSet<>();
     @ManyToMany(mappedBy = "visitors")
-    private Set<Event> events_visited;
+    private Set<Event> events_visited = new HashSet<>();
 
     public User(String email, String password, String first_name, String last_name, LocalDate date_of_birth) {
         this.email = email;

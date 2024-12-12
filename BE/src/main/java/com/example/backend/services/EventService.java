@@ -1,9 +1,13 @@
 package com.example.backend.services;
 
 import com.example.backend.dtos.EventCreationDTO;
+import com.example.backend.dtos.EventDetailsDTO;
+import com.example.backend.dtos.EventSummaryDTO;
+import com.example.backend.dtos.MapPointDTO;
 import com.example.backend.entities.Event;
 import com.example.backend.entities.User;
 import com.example.backend.repositories.EventRepository;
+import com.example.backend.repositories.UserRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,31 +18,35 @@ import java.util.List;
 public class EventService
 {
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
-    public EventService(EventRepository eventRepository)
+    public EventService(EventRepository eventRepository, UserRepository userRepository)
     {
         this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
     }
 
-    public void addNewEvent(EventCreationDTO eventCreationDTO, User user)
+    public void addNewEvent(EventCreationDTO eventCreationDTO, String email)
     {
-        Event event = new Event();
-        event.setTitle(eventCreationDTO.title());
-        event.setCreated_by(user);
-        event.setDescription(eventCreationDTO.description());
-        event.setCategory(eventCreationDTO.category());
-        event.setLocation(eventCreationDTO.location());
-        event.setLatitude(eventCreationDTO.latitude());
-        event.setLongitude(eventCreationDTO.longitude());
-        event.setStart_date(eventCreationDTO.start_date());
-        event.setEnd_date(eventCreationDTO.end_date());
-        event.setStart_time(eventCreationDTO.start_time());
-        event.setEnd_time(eventCreationDTO.end_time());
-        event.setPrice(eventCreationDTO.price());
+        User user = userRepository.findByEmail(email);
+
+        Event event = new Event(eventCreationDTO.title(),
+                                user,
+                                eventCreationDTO.description(),
+                                eventCreationDTO.category(),
+                                eventCreationDTO.location(),
+                                eventCreationDTO.latitude(),
+                                eventCreationDTO.longitude(),
+                                eventCreationDTO.start_date(),
+                                eventCreationDTO.end_date(),
+                                eventCreationDTO.start_time(),
+                                eventCreationDTO.end_time(),
+                                eventCreationDTO.price());
+
         eventRepository.save(event);
     }
 
-    public List<Event> getEvents(Double longitudeAfter, Double longitudeBefore, Double latitudeAfter, Double latitudeBefore, Integer page)
+    public List<MapPointDTO> getMapPoints(Double longitudeAfter, Double longitudeBefore, Double latitudeAfter, Double latitudeBefore, Integer page)
     {
         Pageable pageable;
         if (page != null)
@@ -49,6 +57,41 @@ public class EventService
         {
             pageable = PageRequest.of(0, 1);
         }
-        return eventRepository.findByEventsWithinArea(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, pageable);
+
+        List<Event> events = eventRepository.findByEventsWithinArea(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, pageable);
+
+        return events.stream().map(event -> new MapPointDTO(event.getId(), event.getLatitude(), event.getLongitude())).toList();
+    }
+
+    public EventSummaryDTO getEventSummary(int eventId, String email)
+    {
+        Event event = eventRepository.findById(eventId).orElseThrow();
+        Boolean isWishlisted = eventRepository.existsWisher(eventId, email);
+
+        return new EventSummaryDTO(
+                event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                event.getTitle(),
+                event.getLocation(),
+                event.getStart_date(),
+                event.getEnd_date(),
+                event.getStart_time(),
+                event.getEnd_time(),
+                event.getPrice(),
+                isWishlisted
+        );
+    }
+
+    public EventDetailsDTO getEventDetails(int eventId)
+    {
+        Event event = eventRepository.findById(eventId).orElseThrow();
+        Integer visitorCount = eventRepository.countVisitors(eventId);
+        List<String> photos = eventRepository.getNewestTwoPhotos(eventId);
+
+        return new EventDetailsDTO(
+                event.getDescription(),
+                event.getCreated_by().getFirst_name() + " " + event.getCreated_by().getLast_name(),
+                visitorCount,
+                photos
+        );
     }
 }
