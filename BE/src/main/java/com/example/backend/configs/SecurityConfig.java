@@ -51,7 +51,9 @@ public class SecurityConfig
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/error",
-                                "/v1/users/**").permitAll()
+                                "/v1/users/**",
+                                "v1/events/**",
+                                "v1/events").permitAll()
                 ).authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .requestMatchers(HttpMethod.POST,
                                 "/v1/users",

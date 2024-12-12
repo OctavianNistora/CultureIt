@@ -24,9 +24,9 @@ export default function Profile() {
 
         axios
             .get(`${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}`, {
-                //headers: {
-                    //Authorization: `eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnUuenZpbmNhQGdtYWlsLmNvbSIsImlhdCI6MTczNDAwNzgwMiwiZXhwIjoxNzM0MjY3MDAyfQ.gMnl7Po6Mzp0SGPAqJv--zXOJE-ivd_KIGON46BJTvTUaXFrNXk49RwhhH3f8EUoaFWciXnY5sK_s4c4OOh-og`,
-                //},
+                headers: {
+                    Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0MDIyNDI1LCJleHAiOjE3MzQyODE2MjV9.I0sWvinKIVvxyaq8QwYOcNm_6slgmri8AvXR-BzJ-uzDQoL1K2mee6d26Fv-eBApqn-2Bqy8Jutoja8wq089rA`,
+                },
             })
             .then((response) => {
                 setUser(response.data);
