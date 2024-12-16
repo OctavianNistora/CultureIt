@@ -40,13 +40,13 @@ public class UserConfiguration {
 
             Event event1 = new Event(
                     "Event 1", User1, "Event 1 description", "Event 1 category",
-                    "Event 1 location", 0.0, 0.0, LocalDate.of(2022, 1, 1),
-                    LocalDate.of(2022, 1, 2), LocalTime.of(10, 0), LocalTime.of(12, 0), 0.0
+                    "Event 1 location", 45.7552003, 21.2272141, LocalDate.of(2022, 1, 1),
+                    LocalDate.of(2022, 1, 2), LocalTime.of(10, 0), LocalTime.of(12, 0), 10.5
             );
 
             Event event2 = new Event(
                     "Event 2", User2, "Event 2 description", "Event 2 category",
-                    "Event 2 location", 0.0, 0.0, LocalDate.of(2022, 2, 1),
+                    "Event 2 location", 45.7539753, 21.2258655, LocalDate.of(2022, 2, 1),
                     LocalDate.of(2022, 2, 2), LocalTime.of(10, 0), LocalTime.of(12, 0), 0.0
             );
 

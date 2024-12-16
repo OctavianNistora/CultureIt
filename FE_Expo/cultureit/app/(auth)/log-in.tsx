@@ -19,7 +19,7 @@ export default function LogIn() {
     setIsSubmitting(true);
 
     axios({
-      url: `${process.env.EXPO_PUBLIC_API_URL}/token`,
+      url: `${process.env.EXPO_PUBLIC_API_URL}/v1/auth/token`,
       method: "POST",
       data: form,
     }).then((res) => {

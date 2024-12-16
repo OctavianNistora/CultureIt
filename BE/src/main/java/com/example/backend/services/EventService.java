@@ -55,7 +55,7 @@ public class EventService
         }
         else
         {
-            pageable = PageRequest.of(0, 1);
+            pageable = PageRequest.of(0, (int) eventRepository.count());
         }
 
         List<Event> events = eventRepository.findByEventsWithinArea(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, pageable);
