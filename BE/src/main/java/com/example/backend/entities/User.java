@@ -13,7 +13,9 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name="users")
+@Table(name="users", indexes = {
+        @Index(name = "email_index", columnList = "email", unique = true)
+})
 public class User {
     @Id
     @SequenceGenerator(
@@ -38,7 +40,12 @@ public class User {
     @NotNull
     private Boolean is_publisher;
 
-    @ManyToMany(mappedBy = "wishers")
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(
+            name = "wishlist",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
     private Set<Event> events_wishlist = new HashSet<>();
     @ManyToMany(mappedBy = "visitors")
     private Set<Event> events_visited = new HashSet<>();

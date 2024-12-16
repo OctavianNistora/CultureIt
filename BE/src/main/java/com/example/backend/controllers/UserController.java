@@ -1,7 +1,6 @@
 package com.example.backend.controllers;
 
-import com.example.backend.dtos.UserCreationDTO;
-import com.example.backend.dtos.UserPropValuePairDTO;
+import com.example.backend.dtos.*;
 import com.example.backend.entities.User;
 import com.example.backend.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +13,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,57 +58,34 @@ public class UserController
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Get all users")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @ApiResponse(responseCode = "200", description = "Users found",
-            content = {@Content(mediaType = "application/json",
-                    array = @ArraySchema(schema =
-                    @Schema(implementation = User.class)))})
-    @GetMapping
-    public ResponseEntity<List<User>> getUsers()
-    {
-        List<User> users = userService.getUsers();
-        if (users.isEmpty())
-        {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Get user by id")
+    @Operation(summary = "Get user profile")
     @SecurityRequirement(name = "Bearer Authentication")
     @ApiResponse(responseCode = "200", description = "User found",
             content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = User.class))})
+                    schema = @Schema(implementation = UserProfileDTO.class))})
     @ApiResponse(responseCode = "404", description = "User not found",
             content = @Content)
-    @GetMapping(path = "{id}")
-    public ResponseEntity<User> getUsers(@PathVariable int id)
+    @GetMapping(path = "{id}/profile")
+    public ResponseEntity<UserProfileDTO> getUserProfile(@AuthenticationPrincipal UserDetails userDetails,
+                                                         @PathVariable int id)
     {
-        User user = userService.getUserById(id);
-        if (user == null)
-        {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        UserProfileDTO profile = userService.getUserProfile(id, userDetails.getUsername());
 
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
-    @Operation(summary = "Update user data")
+    @Operation(summary = "Update user profile")
     @SecurityRequirement(name = "Bearer Authentication")
     @ApiResponse(responseCode = "200", description = "User updated",
             content = @Content)
     @ApiResponse(responseCode = "404", description = "User not found",
             content = @Content)
-    @PatchMapping
-    public ResponseEntity<Void> updateUser(int id, @RequestBody UserPropValuePairDTO[] userPropValuePairDTOS)
+    @PutMapping(path = "{id}")
+    public ResponseEntity<Void> updateUserProfile(@AuthenticationPrincipal UserDetails userDetails,
+                                                  @PathVariable int id,
+                                                  @RequestBody UserProfileUpdateDTO updateData)
     {
-        boolean success = userService.updateUser(id, userPropValuePairDTOS);
-        if (!success)
-        {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        userService.updateUser(id, updateData, userDetails.getUsername());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -132,4 +110,48 @@ public class UserController
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(summary = "Add event to user wishlist")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponse(responseCode = "200", description = "Event added to wishlist",
+            content = @Content)
+    @PostMapping(path = "{userId}/wishlist")
+    public ResponseEntity<Void> addEventToWishlist(@AuthenticationPrincipal UserDetails userDetails,
+                                                   @PathVariable int userId,
+                                                   @RequestBody int eventId)
+    {
+        userService.addEventToWishlist(userId, eventId, userDetails.getUsername());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get user wishlist")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponse(responseCode = "200", description = "Wishlist found",
+            content = {@Content(mediaType = "application/json",
+                    array = @ArraySchema(schema =
+                    @Schema(implementation = EventWishlistedItemDTO.class)))})
+    @GetMapping(path = "{userId}/wishlist")
+    public ResponseEntity<List<EventWishlistedItemDTO>> getWishlist(@AuthenticationPrincipal UserDetails userDetails,
+                                                                    @PathVariable int userId)
+
+    {
+        List<EventWishlistedItemDTO> wishlist = userService.getWishlist(userId, userDetails.getUsername());
+
+        return new ResponseEntity<>(wishlist, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Remove event from user wishlist")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponse(responseCode = "200", description = "Event removed from wishlist",
+            content = @Content)
+    @DeleteMapping(path = "{userId}/wishlist/{eventId}")
+    public ResponseEntity<Void> removeEventFromWishlist(@AuthenticationPrincipal UserDetails userDetails,
+                                                        @PathVariable int userId,
+                                                        @PathVariable int eventId)
+
+    {
+        userService.removeEventFromWishlist(userId, eventId, userDetails.getUsername());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

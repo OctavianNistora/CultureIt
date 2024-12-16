@@ -13,10 +13,11 @@ public interface EventRepository extends JpaRepository<Event, Integer>
 {
     @Query("SELECT e " +
            "FROM Event e " +
-           "WHERE (:longitudeAfter IS NULL OR e.longitude > :longitudeAfter)" +
-           "AND (:longitudeBefore IS NULL OR e.longitude < :longitudeBefore)" +
-           "AND (:latitudeAfter IS NULL OR e.latitude > :latitudeAfter)" +
-           "AND (:latitudeBefore IS NULL OR e.latitude < :latitudeBefore)"
+           "WHERE (:longitudeAfter IS NULL OR e.longitude > :longitudeAfter) " +
+           "AND (:longitudeBefore IS NULL OR e.longitude < :longitudeBefore) " +
+           "AND (:latitudeAfter IS NULL OR e.latitude > :latitudeAfter) " +
+           "AND (:latitudeBefore IS NULL OR e.latitude < :latitudeBefore) " +
+           "AND e.end_date >= CURRENT_DATE "
     )
     List<Event> findByEventsWithinArea(Double longitudeAfter, Double longitudeBefore,
                                        Double latitudeAfter, Double latitudeBefore,
@@ -48,4 +49,13 @@ public interface EventRepository extends JpaRepository<Event, Integer>
            "LIMIT 2"
     )
     List<String> getNewestTwoPhotos(Integer eventId);
+
+    @Query("SELECT e " +
+           "FROM Event e " +
+           "LEFT JOIN e.wishers w " +
+           "WHERE e.end_date >= CURRENT_DATE " +
+           "GROUP BY e " +
+           "ORDER BY COUNT(w) DESC"
+    )
+    List<Event> findTrendingEvents(Pageable pageable);
 }
