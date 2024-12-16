@@ -1,29 +1,32 @@
 package com.example.backend.services;
 
-import com.example.backend.dtos.UserCreationDTO;
-import com.example.backend.dtos.UserPropValuePairDTO;
+import com.example.backend.dtos.*;
+import com.example.backend.entities.Event;
 import com.example.backend.entities.User;
+import com.example.backend.repositories.EventRepository;
 import com.example.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class UserService
 {
     private final UserRepository userRepository;
+    private final EventRepository eventRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
 
     @Autowired
-    public UserService(UserRepository userRepository)
+    public UserService(UserRepository userRepository, EventRepository eventRepository)
     {
         this.userRepository = userRepository;
+        this.eventRepository = eventRepository;
     }
 
 
@@ -40,62 +43,93 @@ public class UserService
 
     }
 
-    public User getUserById(int id)
+    public UserProfileDTO getUserProfile(int id, String currentUserEmail)
     {
-        return userRepository.findById(id).orElse(null);
-    }
-
-    public User getUserByEmail(String email)
-    {
-        return userRepository.findByEmail(email);
-    }
-
-    public List<User> getUsers()
-    {
-        return userRepository.findAll();
-    }
-
-    public boolean updateUser(int id, UserPropValuePairDTO[] userPropValuePairDTOS)
-    {
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null)
+        User user = userRepository.findById(id).orElseThrow();
+        if (!user.getEmail().equals(currentUserEmail))
         {
-            return false;
+            throw new RuntimeException("Referenced user is not the same as the authenticated user");
         }
 
-        for (UserPropValuePairDTO userPropValuePairDTO : userPropValuePairDTOS)
+        return new UserProfileDTO(
+                user.getEmail(),
+                user.getFirst_name(),
+                user.getLast_name(),
+                user.getDate_of_birth()
+        );
+    }
+
+    public void updateUser(int id, UserProfileUpdateDTO updateData, String currentUserEmail)
+    {
+        User user = userRepository.findById(id).orElseThrow();
+        if (!user.getEmail().equals(currentUserEmail))
         {
-            switch (userPropValuePairDTO.property())
-            {
-                case "email":
-                    user.setEmail(userPropValuePairDTO.value());
-                    break;
-                case "password":
-                    user.setPassword(userPropValuePairDTO.value());
-                    break;
-                case "first_name":
-                    user.setFirst_name(userPropValuePairDTO.value());
-                    break;
-                case "last_name":
-                    user.setLast_name(userPropValuePairDTO.value());
-                    break;
-                case "date_of_birth":
-                    user.setDate_of_birth(LocalDate.parse(userPropValuePairDTO.value()));
-                    break;
-                case "is_publisher":
-                    user.setIs_publisher(Boolean.parseBoolean(userPropValuePairDTO.value()));
-                    break;
-                default:
-                    return false;
-            }
+            throw new RuntimeException("Referenced user is not the same as the authenticated user");
         }
+
+        user.setFirst_name(updateData.first_name());
+        user.setLast_name(updateData.last_name());
+        user.setDate_of_birth(updateData.date_of_birth());
 
         userRepository.save(user);
-        return true;
     }
 
     public void deleteUser(int id)
     {
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void addEventToWishlist(int userId, int eventId, String currentUserEmail)
+    {
+        User user = userRepository.findById(userId).orElseThrow();
+        if (!user.getEmail().equals(currentUserEmail))
+        {
+            throw new RuntimeException("Referenced user is not the same as the authenticated user");
+        }
+
+        Event event = eventRepository.findById(eventId).orElseThrow();
+
+        user.getEvents_wishlist().add(event);
+
+        userRepository.save(user);
+    }
+
+    public List<EventWishlistedItemDTO> getWishlist(int userId, String currentUserEmail)
+    {
+        User user = userRepository.findById(userId).orElseThrow();
+        if (!user.getEmail().equals(currentUserEmail))
+        {
+            throw new RuntimeException("Referenced user is not the same as the authenticated user");
+        }
+
+        List<Event> wishlist = userRepository.getWishListedEvents(userId);
+        System.out.println(wishlist.size());
+
+        return wishlist.stream()
+                .map(event -> new EventWishlistedItemDTO(
+                        event.getId(),
+                        event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                        event.getTitle(),
+                        event.getLocation(),
+                        event.getStart_date().toString(),
+                        event.getEnd_date().toString())
+                ).toList();
+    }
+
+    @Transactional
+    public void removeEventFromWishlist(int userId, int eventId, String currentUserEmail)
+    {
+        User user = userRepository.findById(userId).orElseThrow();
+        if (!user.getEmail().equals(currentUserEmail))
+        {
+            throw new RuntimeException("Referenced user is not the same as the authenticated user");
+        }
+
+        Event event = eventRepository.findById(eventId).orElseThrow();
+
+        user.getEvents_wishlist().remove(event);
+
+        userRepository.save(user);
     }
 }

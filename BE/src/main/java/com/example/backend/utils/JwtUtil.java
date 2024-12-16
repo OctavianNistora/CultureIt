@@ -2,6 +2,7 @@ package com.example.backend.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtUtil {
-    private final SecretKey SECRET_KEY = Jwts.SIG.HS512.key().build();
+    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("INSERT_SECRET_KEY_HERE_FROM_ENVIRONMENT".getBytes());
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

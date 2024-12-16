@@ -57,7 +57,7 @@ public class SecurityConfig
                 ).authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .requestMatchers(HttpMethod.POST,
                                 "/v1/users",
-                                "/v1/auth/token").permitAll()
+                                "/v1/auth").permitAll()
                 ).authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .anyRequest().authenticated()
                 ).sessionManagement((sessionManagement) -> sessionManagement

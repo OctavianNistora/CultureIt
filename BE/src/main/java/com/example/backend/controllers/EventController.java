@@ -1,9 +1,6 @@
 package com.example.backend.controllers;
 
-import com.example.backend.dtos.EventCreationDTO;
-import com.example.backend.dtos.EventDetailsDTO;
-import com.example.backend.dtos.EventSummaryDTO;
-import com.example.backend.dtos.MapPointDTO;
+import com.example.backend.dtos.*;
 import com.example.backend.services.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -93,5 +90,17 @@ public class EventController
     {
         EventDetailsDTO eventDetails = eventService.getEventDetails(eventId);
         return new ResponseEntity<>(eventDetails, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get trending events")
+    @ApiResponse(responseCode = "200", description = "Trending events retrieved",
+            content = {@Content(mediaType = "application/json",
+                    array = @ArraySchema(schema =
+                    @Schema(implementation = EventTrendingSummaryDTO.class)))})
+    @GetMapping("/trending")
+    public ResponseEntity<List<EventTrendingSummaryDTO>> getTrendingEvents(@RequestParam(required = false) Integer page)
+    {
+        List<EventTrendingSummaryDTO> trendingEvents = eventService.getTrendingEvents(page);
+        return new ResponseEntity<>(trendingEvents, HttpStatus.OK);
     }
 }

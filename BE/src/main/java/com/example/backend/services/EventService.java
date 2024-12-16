@@ -1,13 +1,11 @@
 package com.example.backend.services;
 
-import com.example.backend.dtos.EventCreationDTO;
-import com.example.backend.dtos.EventDetailsDTO;
-import com.example.backend.dtos.EventSummaryDTO;
-import com.example.backend.dtos.MapPointDTO;
+import com.example.backend.dtos.*;
 import com.example.backend.entities.Event;
 import com.example.backend.entities.User;
 import com.example.backend.repositories.EventRepository;
 import com.example.backend.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,9 +24,14 @@ public class EventService
         this.userRepository = userRepository;
     }
 
-    public void addNewEvent(EventCreationDTO eventCreationDTO, String email)
+    @Transactional
+    public void addNewEvent(EventCreationDTO eventCreationDTO, String currentUserEmail)
     {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(currentUserEmail);
+        if (user == null)
+        {
+            throw new RuntimeException("Authenticated user not found");
+        }
 
         Event event = new Event(eventCreationDTO.title(),
                                 user,
@@ -93,5 +96,29 @@ public class EventService
                 visitorCount,
                 photos
         );
+    }
+
+    public List<EventTrendingSummaryDTO> getTrendingEvents(Integer page)
+    {
+        Pageable pageable;
+        if (page != null)
+        {
+            pageable = PageRequest.ofSize(10).withPage(page);
+        }
+        else
+        {
+            pageable = PageRequest.of(0, (int) eventRepository.count());
+        }
+
+        List<Event> events = eventRepository.findTrendingEvents(pageable);
+
+        System.out.println(events.size());
+
+        return events.stream()
+                .map(event -> new EventTrendingSummaryDTO(
+                        event.getId(),
+                        event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                        event.getTitle())
+                ).toList();
     }
 }

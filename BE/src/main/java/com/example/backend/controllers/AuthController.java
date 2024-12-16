@@ -1,6 +1,9 @@
 package com.example.backend.controllers;
 
 
+import com.example.backend.dtos.AuthDTO;
+import com.example.backend.entities.User;
+import com.example.backend.repositories.UserRepository;
 import com.example.backend.services.CustomUserDetailsService;
 import com.example.backend.dtos.UserAuthentificationDTO;
 import com.example.backend.utils.JwtUtil;
@@ -26,14 +29,17 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping("/token")
-    public String loginUser(@RequestBody @Valid UserAuthentificationDTO authenticationRequest) {
+    @Autowired
+    private UserRepository userRepository;
+
+    @PostMapping()
+    public AuthDTO loginUser(@RequestBody @Valid UserAuthentificationDTO authenticationRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authenticationRequest.email(), authenticationRequest.password())
         );
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.email());
-
-        return jwtUtil.generateToken(userDetails);
+        User user = userRepository.findByEmail(authenticationRequest.email());
+        return new AuthDTO(user.getId(), jwtUtil.generateToken(userDetails));
     }
 }
