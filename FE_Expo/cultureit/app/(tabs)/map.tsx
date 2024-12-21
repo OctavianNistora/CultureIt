@@ -4,7 +4,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import axios from 'axios';
 import { router } from 'expo-router';
 
-// Define the interface for the event markers
+
 interface EventMarker {
     id: number;
     latitude: number;
@@ -24,22 +24,22 @@ export default function Map() {
 
     const mapRef = useRef(null);
 
-    // Fetch events from the backend event summaries
+
     useEffect(() => {
         const fetchEventData = async () => {
             try {
-                // Replace with the actual API URL for fetching event summaries
+
                 const response = await axios.get(
                     `${process.env.EXPO_PUBLIC_API_URL}/v1/events/map-points`,
                     {
                         headers: {
-                            Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0MDI2Nzc0LCJleHAiOjE3MzQyODU5NzR9.AKctQAwDQ3HV_uZVnd51CBjJRUIYfsh9l_OMtUVc6qaAsBKluCmlzXYKaqti1ciNcviuS3oA7UM6wXdXU_DMVQ`,
+                            Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ6dmluY2FhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0Nzk3NjA3LCJleHAiOjE3MzUwNTY4MDd9.ApnruEmKF4gwILnw_N5OBfKWAxi_pLHtx4WtQXGBaog`,
                         }
                     }
                 );
 
 
-                // Map the event summaries into the marker format
+
                 const eventMarkers: EventMarker[] = response.data;
 
                 setMarkers(eventMarkers);
@@ -52,7 +52,7 @@ export default function Map() {
         fetchEventData();
     }, []);
 
-    // Handle region change
+
     function onRegionChange(region: Region) {
         setRegion(region);
     }
@@ -68,7 +68,7 @@ export default function Map() {
     });
 
     if (loading) {
-        // Show loading spinner while data is being fetched
+
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center' }} />

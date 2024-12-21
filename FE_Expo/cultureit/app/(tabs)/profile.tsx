@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import axios from 'axios'; // Import axios for API calls
+import axios from 'axios';
 
 interface User {
     first_name: string;
@@ -25,7 +25,7 @@ export default function Profile() {
         axios
             .get(`${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}`, {
                 headers: {
-                    Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0MDIyNDI1LCJleHAiOjE3MzQyODE2MjV9.I0sWvinKIVvxyaq8QwYOcNm_6slgmri8AvXR-BzJ-uzDQoL1K2mee6d26Fv-eBApqn-2Bqy8Jutoja8wq089rA`,
+                    Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ6dmluY2FhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0Nzk2NDg4LCJleHAiOjE3MzUwNTU2ODh9.R-w2SgBwfHWrBWNgFtpfR3j2BXfaR4nbreHFod-tcXQ`,
                 },
             })
             .then((response) => {
