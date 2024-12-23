@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -58,7 +59,8 @@ public class Event
     @Column(columnDefinition = "TIME")
     @NotNull
     private LocalTime end_time;
-    @Column(columnDefinition ="decimal(8,2) default '0.00'")
+    @Column(columnDefinition ="decimal(8,2)")
+    @ColumnDefault("0.0")
     private Double price;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
