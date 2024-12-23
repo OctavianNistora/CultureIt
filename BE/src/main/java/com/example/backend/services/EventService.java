@@ -58,7 +58,13 @@ public class EventService
         }
         else
         {
-            pageable = PageRequest.of(0, (int) eventRepository.count());
+            long recordCount = eventRepository.count();
+            if (recordCount == 0)
+            {
+                return List.of();
+            }
+
+            pageable = PageRequest.of(0, (int) recordCount);
         }
 
         List<Event> events = eventRepository.findByEventsWithinArea(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, pageable);
@@ -107,7 +113,13 @@ public class EventService
         }
         else
         {
-            pageable = PageRequest.of(0, (int) eventRepository.count());
+            long recordCount = eventRepository.count();
+            if (recordCount == 0)
+            {
+                return List.of();
+            }
+
+            pageable = PageRequest.of(0, (int) recordCount);
         }
 
         List<Event> events = eventRepository.findTrendingEvents(pageable);

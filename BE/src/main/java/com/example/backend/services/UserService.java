@@ -132,4 +132,27 @@ public class UserService
 
         userRepository.save(user);
     }
+
+    public void changeUserRole(int id, String role, String currentUserEmail)
+    {
+        User user = userRepository.findById(id).orElseThrow();
+        if (!user.getEmail().equals(currentUserEmail))
+        {
+            throw new RuntimeException("Referenced user is not the same as the authenticated user");
+        }
+
+        switch (role)
+        {
+            case "publisher":
+                user.setIs_publisher(true);
+                break;
+            case "user":
+                user.setIs_publisher(false);
+                break;
+            default:
+                throw new RuntimeException("Invalid role");
+        }
+
+        userRepository.save(user);
+    }
 }

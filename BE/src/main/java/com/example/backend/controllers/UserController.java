@@ -154,4 +154,18 @@ public class UserController
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Operation(summary = "Change user role")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponse(responseCode = "200", description = "Role changed",
+            content = @Content)
+    @PutMapping(path = "{userId}/role")
+    public ResponseEntity<Void> changeUserRole(@AuthenticationPrincipal UserDetails userDetails,
+                                              @PathVariable int userId,
+                                              @RequestBody String role)
+    {
+        userService.changeUserRole(userId, role, userDetails.getUsername());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
