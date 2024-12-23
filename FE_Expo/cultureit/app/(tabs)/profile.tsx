@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
+import * as SecureStore from "expo-secure-store";
 
 interface User {
     first_name: string;
@@ -23,9 +24,9 @@ export default function Profile() {
     useEffect(() => {
 
         axios
-            .get(`${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}`, {
+            .get(`${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/profile`, {
                 headers: {
-                    Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ6dmluY2FhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0Nzk2NDg4LCJleHAiOjE3MzUwNTU2ODh9.R-w2SgBwfHWrBWNgFtpfR3j2BXfaR4nbreHFod-tcXQ`,
+                    Authorization: `Bearer ${SecureStore.getItem('secure_token')}`,
                 },
             })
             .then((response) => {

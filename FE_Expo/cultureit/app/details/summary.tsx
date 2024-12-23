@@ -1,67 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, Button, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import axios from "axios";
+import * as SecureStore from 'expo-secure-store';
 
-const eventData = {
-    photo: 'https://via.placeholder.com/400x300', // Replace with actual event photo URL
-    location: '123 Event St., Cityville',
-    datePeriod: '2024-01-01 to 2024-01-07',
-    openingHours: '10:00 AM - 6:00 PM',
-    price: '$15.00',
-};
+interface EventData {
+    mainImage: string;
+    name: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+    price: number;
+    isWishlisted: boolean;
+}
 
 export default function Summary() {
-    const { title, description } = useLocalSearchParams();
+    const { id } = useLocalSearchParams();
+    const [eventData, setEventData] = useState<EventData | null>(null);
     const [isFavorite, setIsFavorite] = useState(false);
 
-    // Function to toggle the favorite status
-    const handleFavorite = () => {
-        setIsFavorite(!isFavorite);
-        // You can add logic here to store the favorite status, e.g., API or local storage
-    };
+    useEffect(() => {
+        const fetchEventData = async () => {
+            try {
+                const response = await axios.get(
+                    `${process.env.EXPO_PUBLIC_API_URL}/v1/events/${id}/summary`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${await SecureStore.getItemAsync('secure_token')}`,
+                        },
+                    }
+                );
 
-    const handleMoreDetails = () => {
-        // Navigate to the more details page
-        // Adjust the navigation path as necessary for your app
-        // Example: router.push('/more-details');
-    };
+                console.log(response.data);
+                setEventData(response.data);
+
+            } catch (error) {
+                console.error('Error fetching event data:', error);
+            }
+        };
+        fetchEventData();
+    }, [id]);
+
+
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            {/* Event Image */}
-            <Image source={{ uri: eventData.photo }} style={styles.eventImage} />
 
-            {/* Event Name and Add to Favorites Button */}
+            <Image source={{ uri: eventData.mainImage }} style={styles.eventImage} />
+
+
             <View style={styles.headerContainer}>
-                <Text style={styles.eventName}>{title}</Text>
+                <Text style={styles.eventName}>{eventData.name}</Text>
                 <Button
                     title={isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-                    onPress={handleFavorite}
+                    //onPress={handleFavorite}
                     color="#F7BA4B"
                 />
             </View>
 
-            {/* Event Description */}
-            <Text style={styles.eventDescription}>{description}</Text>
-
-            {/* Event Summary */}
             <View style={styles.detailsContainer}>
                 <Text style={styles.detailText}>
                     <Text style={styles.bold}>Location:</Text> {eventData.location}
                 </Text>
                 <Text style={styles.detailText}>
-                    <Text style={styles.bold}>Date:</Text> {eventData.datePeriod}
+                    <Text style={styles.bold}>Date:</Text> {eventData.startDate} to {eventData.endDate}
                 </Text>
                 <Text style={styles.detailText}>
-                    <Text style={styles.bold}>Opening Hours:</Text> {eventData.openingHours}
+                    <Text style={styles.bold}>Opening Hours:</Text> {eventData.startTime} - {eventData.endTime}
                 </Text>
                 <Text style={styles.detailText}>
-                    <Text style={styles.bold}>Price:</Text> {eventData.price}
+                    <Text style={styles.bold}>Price:</Text> ${eventData.price}
                 </Text>
             </View>
 
-            {/* More Summary Button */}
-            <Button title="More Summary" onPress={handleMoreDetails} color="#F7BA4B" />
+
+            <Button title="More Summary" /*onPress={handleMoreDetails}*/ color="#F7BA4B" />
         </ScrollView>
     );
 }

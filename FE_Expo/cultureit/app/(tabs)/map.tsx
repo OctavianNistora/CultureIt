@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import axios from 'axios';
 import { router } from 'expo-router';
-
+import * as SecureStore from 'expo-secure-store';
 
 interface EventMarker {
     id: number;
@@ -33,13 +33,13 @@ export default function Map() {
                     `${process.env.EXPO_PUBLIC_API_URL}/v1/events/map-points`,
                     {
                         headers: {
-                            Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ6dmluY2FhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0Nzk3NjA3LCJleHAiOjE3MzUwNTY4MDd9.ApnruEmKF4gwILnw_N5OBfKWAxi_pLHtx4WtQXGBaog`,
+                            Authorization: `Bearer ${SecureStore.getItem('secure_token')}`,
                         }
                     }
                 );
 
 
-
+                console.log(response.data);
                 const eventMarkers: EventMarker[] = response.data;
 
                 setMarkers(eventMarkers);
@@ -75,7 +75,7 @@ export default function Map() {
             </View>
         );
     }
-    console.log(markers);
+    //console.log(markers);
     return (
         <View style={styles.container}>
             <MapView

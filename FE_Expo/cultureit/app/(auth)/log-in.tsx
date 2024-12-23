@@ -5,6 +5,9 @@ import {FormField} from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import {Link, router} from "expo-router";
 import axios from "axios";
+import * as SecureStore from 'expo-secure-store';
+
+
 
 export default function LogIn() {
 
@@ -23,7 +26,12 @@ export default function LogIn() {
       method: "POST",
       data: form,
     }).then((res) => {
-      console.log(res.data)
+      console.log(res.data.token)
+
+      SecureStore.setItem('secure_token', res.data.token);
+      SecureStore.setItem('secure_user_id', res.data.userId.toString());
+
+
       router.push('/map');
     }).catch((err) => console.log("error", err))
       .finally(() => setIsSubmitting(false))
