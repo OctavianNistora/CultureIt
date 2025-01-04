@@ -1,8 +1,8 @@
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
+import React, { useState, useEffect, useRef  } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import axios from 'axios';
-import { router } from 'expo-router';
+import {router, useFocusEffect} from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 
 interface EventMarker {
@@ -21,36 +21,45 @@ export default function Map() {
 
     const [markers, setMarkers] = useState<EventMarker[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isPublisher, setIsPublisher] = useState(false);
 
     const mapRef = useRef(null);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchEventData = async () => {
+                try {
+                    const role = await SecureStore.getItemAsync('secure_role');
+                    setIsPublisher(role === 'publisher');
 
-    useEffect(() => {
-        const fetchEventData = async () => {
-            try {
+                    const token = await SecureStore.getItemAsync('secure_token');
+                    if (!token) throw new Error('Token not found');
 
-                const response = await axios.get(
-                    `${process.env.EXPO_PUBLIC_API_URL}/v1/events/map-points`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${SecureStore.getItem('secure_token')}`,
+                    const response = await axios.get(
+                        `${process.env.EXPO_PUBLIC_API_URL}/v1/events/map-points`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            }
                         }
-                    }
-                );
+                    );
 
 
-                console.log(response.data);
-                const eventMarkers: EventMarker[] = response.data;
+                    console.log(response.data);
+                    const eventMarkers: EventMarker[] = response.data;
 
-                setMarkers(eventMarkers);
-            } catch (error) {
-                console.error('Error fetching map points', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchEventData();
-    }, []);
+                    setMarkers(eventMarkers);
+                } catch (error) {
+                    console.error('Error fetching map points', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchEventData();
+    }, [])
+    );
+
+
 
 
     function onRegionChange(region: Region) {
@@ -65,6 +74,24 @@ export default function Map() {
             width: '100%',
             height: '100%',
         },
+        addEventButton: {
+            position: 'absolute',
+            bottom: 20,
+            right: 20,
+            backgroundColor: '#F7BA4B',
+            padding: 15,
+            borderRadius: 50,
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#000',
+            shadowOpacity: 0.2,
+            shadowRadius: 5,
+            elevation: 5,
+        },
+        buttonText: {
+            color: 'white',
+            fontWeight: 'bold',
+        },
     });
 
     if (loading) {
@@ -75,7 +102,7 @@ export default function Map() {
             </View>
         );
     }
-    //console.log(markers);
+
     return (
         <View style={styles.container}>
             <MapView
@@ -98,6 +125,13 @@ export default function Map() {
                     />
                 ))}
             </MapView>
+            {isPublisher && (
+                <TouchableOpacity style={styles.addEventButton} onPress={
+                    () => router.push('../details/addEvent')
+                }>
+                    <Text style={styles.buttonText}>Add Event</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 }

@@ -55,7 +55,8 @@ public class UserService
                 user.getEmail(),
                 user.getFirst_name(),
                 user.getLast_name(),
-                user.getDate_of_birth()
+                user.getDate_of_birth(),
+                user.getIs_publisher()
         );
     }
 
@@ -140,6 +141,9 @@ public class UserService
         {
             throw new RuntimeException("Referenced user is not the same as the authenticated user");
         }
+
+        System.out.println(role);
+        role = role.substring(1, role.length() - 1);
 
         switch (role)
         {

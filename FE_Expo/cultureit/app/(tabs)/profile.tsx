@@ -33,47 +33,56 @@ export default function Profile() {
             .then((response) => {
                 setUser(response.data);
                 setLoading(false);
+                console.log(response.data);
             })
             .catch((err) => {
                 console.error('Error fetching user data:', err);
                 setError('Failed to load user data');
                 setLoading(false);
             });
+
+
     }, [userId]);
 
-    const handleToggleRole = async () => {
+
+
+    const handleToggleRole = () => {
         if (!user) return;
 
+
+
         const newRole = user.is_publisher ? 'user' : 'publisher';
+        SecureStore.setItem('secure_role', newRole);
 
-        try {
-            const token = await SecureStore.getItemAsync('secure_token');
-            console.log(token);
+        SecureStore.getItemAsync('secure_token').then((token) => {
             if (!token) throw new Error("Token not found");
-
-            /*await axios.put(
-                `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/role`,
-                {
-                    data: newRole,
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );*/
 
             axios({
                 url: `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/role`,
                 method: "PUT",
-                data: newRole,
-                headers: { Authorization: `Bearer ${token}` }
-            });
+                data: JSON.stringify(newRole),
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(() => {
+                    setUser((prevUser) => prevUser ? { ...prevUser, is_publisher: !prevUser.is_publisher } : prevUser);
 
-            setUser((prevUser) => prevUser ? { ...prevUser, is_publisher: !prevUser.is_publisher } : prevUser);
-
-            const roleText = newRole === 'publisher' ? 'You are now a publisher!' : 'You are now a user!';
-            Alert.alert("Success", roleText);
-        } catch (err) {
-            console.error('Error changing role:', err);
-            Alert.alert("Error", "Failed to change role. Please try again.");
-        }
+                    const roleText = newRole === 'publisher' ? 'You are now a publisher!' : 'You are now a user!';
+                    Alert.alert("Success", roleText);
+                })
+                .catch((err) => {
+                    console.error('Error changing role:', err);
+                    Alert.alert("Error", "Failed to change role. Please try again.");
+                })
+                .finally(() => {
+                    console.log("Role toggle attempt completed.");
+                });
+        }).catch((err) => {
+            console.error('Error retrieving token:', err);
+            Alert.alert("Error", "Failed to retrieve token. Please try again.");
+        });
     };
 
     if (loading) {
