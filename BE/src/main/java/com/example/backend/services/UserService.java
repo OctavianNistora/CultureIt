@@ -109,7 +109,7 @@ public class UserService
         return wishlist.stream()
                 .map(event -> new EventWishlistedItemDTO(
                         event.getId(),
-                        event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                        event.getMain_image(),
                         event.getTitle(),
                         event.getLocation(),
                         event.getStart_date().toString(),

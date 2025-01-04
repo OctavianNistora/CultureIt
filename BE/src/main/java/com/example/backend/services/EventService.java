@@ -78,7 +78,7 @@ public class EventService
         Boolean isWishlisted = eventRepository.existsWisher(eventId, email);
 
         return new EventSummaryDTO(
-                event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                event.getMain_image(),
                 event.getTitle(),
                 event.getLocation(),
                 event.getStart_date(),
@@ -93,14 +93,10 @@ public class EventService
     public EventDetailsDTO getEventDetails(int eventId)
     {
         Event event = eventRepository.findById(eventId).orElseThrow();
-        Integer visitorCount = eventRepository.countVisitors(eventId);
-        List<String> photos = eventRepository.getNewestTwoPhotos(eventId);
 
         return new EventDetailsDTO(
                 event.getDescription(),
-                event.getCreated_by().getFirst_name() + " " + event.getCreated_by().getLast_name(),
-                visitorCount,
-                photos
+                event.getCreated_by().getFirst_name() + " " + event.getCreated_by().getLast_name()
         );
     }
 
@@ -129,7 +125,7 @@ public class EventService
         return events.stream()
                 .map(event -> new EventTrendingSummaryDTO(
                         event.getId(),
-                        event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                        event.getMain_image(),
                         event.getTitle())
                 ).toList();
     }

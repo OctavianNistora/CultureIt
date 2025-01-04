@@ -33,22 +33,6 @@ public interface EventRepository extends JpaRepository<Event, Integer>
     )
     Boolean existsWisher(Integer eventId, String userEmail);
 
-    @Query("SELECT COUNT(e) " +
-           "FROM Event e " +
-           "JOIN e.visitors v " +
-           "WHERE e.id = :eventId"
-    )
-    Integer countVisitors(Integer eventId);
-
-
-    @Query("SELECT p.photo_url " +
-           "FROM Event e " +
-           "JOIN e.photos p " +
-           "WHERE e.id = :eventId " +
-           "ORDER BY p.id DESC " +
-           "LIMIT 2"
-    )
-    List<String> getNewestTwoPhotos(Integer eventId);
 
     @Query("SELECT e " +
            "FROM Event e " +

@@ -47,8 +47,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private Set<Event> events_wishlist = new HashSet<>();
-    @ManyToMany(mappedBy = "visitors")
-    private Set<Event> events_visited = new HashSet<>();
 
     public User(String email, String password, String first_name, String last_name, LocalDate date_of_birth) {
         this.email = email;

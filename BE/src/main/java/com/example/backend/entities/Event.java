@@ -31,9 +31,8 @@ public class Event
             generator = "events_sequence"
     )
     private int id;
-    @OneToOne
-    @JoinColumn(name = "main_image_id")
-    private EventPhoto main_image;
+    @NotBlank
+    private String main_image;
     @NotBlank
     private String title;
     @ManyToOne
@@ -63,19 +62,8 @@ public class Event
     @ColumnDefault("0.0")
     private Double price;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    private Set<EventPhoto> photos;
-
     @ManyToMany(mappedBy = "events_wishlist")
     private Set<User> wishers = new HashSet<>();
-
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(
-            name = "event_visitors_mapping",
-            joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> visitors = new HashSet<>();
 
     public Event(String title, User created_by, String description, String category, String location, Double latitude, Double longitude, LocalDate start_date, LocalDate end_date, LocalTime start_time, LocalTime end_time, Double price)
     {
