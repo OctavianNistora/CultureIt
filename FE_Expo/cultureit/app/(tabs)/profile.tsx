@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import * as SecureStore from "expo-secure-store";
+import {router} from "expo-router";
 
 interface User {
     first_name: string;
@@ -18,7 +19,7 @@ export default function Profile() {
     const [error, setError] = useState<string | null>(null);
 
 
-    const userId = 3;
+    const userId = SecureStore.getItem('secure_user_id');
 
 
     useEffect(() => {
@@ -35,10 +36,45 @@ export default function Profile() {
             })
             .catch((err) => {
                 console.error('Error fetching user data:', err);
-                setError('Failed to load user data'); // Set error message
+                setError('Failed to load user data');
                 setLoading(false);
             });
     }, [userId]);
+
+    const handleToggleRole = async () => {
+        if (!user) return;
+
+        const newRole = user.is_publisher ? 'user' : 'publisher';
+
+        try {
+            const token = await SecureStore.getItemAsync('secure_token');
+            console.log(token);
+            if (!token) throw new Error("Token not found");
+
+            /*await axios.put(
+                `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/role`,
+                {
+                    data: newRole,
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );*/
+
+            axios({
+                url: `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/role`,
+                method: "PUT",
+                data: newRole,
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setUser((prevUser) => prevUser ? { ...prevUser, is_publisher: !prevUser.is_publisher } : prevUser);
+
+            const roleText = newRole === 'publisher' ? 'You are now a publisher!' : 'You are now a user!';
+            Alert.alert("Success", roleText);
+        } catch (err) {
+            console.error('Error changing role:', err);
+            Alert.alert("Error", "Failed to change role. Please try again.");
+        }
+    };
 
     if (loading) {
         return (
@@ -74,6 +110,14 @@ export default function Profile() {
                     <Text style={styles.publisherStatus}>
                         Publisher Status: {user.is_publisher ? 'Publisher' : 'Not a Publisher'}
                     </Text>
+                    <TouchableOpacity
+                        style={styles.toggleButton}
+                        onPress={handleToggleRole}
+                    >
+                        <Text style={styles.buttonText}>
+                            {user.is_publisher ? 'Switch to User' : 'Become a Publisher'}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
             )}
         </SafeAreaView>
@@ -119,6 +163,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
         marginTop: 5,
+    },
+    toggleButton: {
+        marginTop: 30, // Move the button lower
+            backgroundColor: '#F7BA4B',
+            padding: 15,
+            borderRadius: 10,
+            alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+            fontWeight: 'bold',
+            fontSize: 16,
     },
     errorText: {
         fontSize: 18,
