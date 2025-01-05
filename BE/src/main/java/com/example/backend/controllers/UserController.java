@@ -114,12 +114,12 @@ public class UserController
     @SecurityRequirement(name = "Bearer Authentication")
     @ApiResponse(responseCode = "200", description = "Event added to wishlist",
             content = @Content)
-    @PostMapping(path = "{userId}/wishlist")
+    @PostMapping(path = "{id}/wishlist")
     public ResponseEntity<Void> addEventToWishlist(@AuthenticationPrincipal UserDetails userDetails,
-                                                   @PathVariable int userId,
+                                                   @PathVariable int id,
                                                    @RequestBody int eventId)
     {
-        userService.addEventToWishlist(userId, eventId, userDetails.getUsername());
+        userService.addEventToWishlist(id, eventId, userDetails.getUsername());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -130,12 +130,12 @@ public class UserController
             content = {@Content(mediaType = "application/json",
                     array = @ArraySchema(schema =
                     @Schema(implementation = EventWishlistedItemDTO.class)))})
-    @GetMapping(path = "{userId}/wishlist")
+    @GetMapping(path = "{id}/wishlist")
     public ResponseEntity<List<EventWishlistedItemDTO>> getWishlist(@AuthenticationPrincipal UserDetails userDetails,
-                                                                    @PathVariable int userId)
+                                                                    @PathVariable int id)
 
     {
-        List<EventWishlistedItemDTO> wishlist = userService.getWishlist(userId, userDetails.getUsername());
+        List<EventWishlistedItemDTO> wishlist = userService.getWishlist(id, userDetails.getUsername());
 
         return new ResponseEntity<>(wishlist, HttpStatus.OK);
     }
@@ -144,13 +144,13 @@ public class UserController
     @SecurityRequirement(name = "Bearer Authentication")
     @ApiResponse(responseCode = "200", description = "Event removed from wishlist",
             content = @Content)
-    @DeleteMapping(path = "{userId}/wishlist/{eventId}")
+    @DeleteMapping(path = "{id}/wishlist/{eventId}")
     public ResponseEntity<Void> removeEventFromWishlist(@AuthenticationPrincipal UserDetails userDetails,
-                                                        @PathVariable int userId,
+                                                        @PathVariable int id,
                                                         @PathVariable int eventId)
 
     {
-        userService.removeEventFromWishlist(userId, eventId, userDetails.getUsername());
+        userService.removeEventFromWishlist(id, eventId, userDetails.getUsername());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -159,12 +159,12 @@ public class UserController
     @SecurityRequirement(name = "Bearer Authentication")
     @ApiResponse(responseCode = "200", description = "Role changed",
             content = @Content)
-    @PutMapping(path = "{userId}/role")
+    @PutMapping(path = "{id}/role")
     public ResponseEntity<Void> changeUserRole(@AuthenticationPrincipal UserDetails userDetails,
-                                              @PathVariable int userId,
+                                              @PathVariable int id,
                                               @RequestBody String role)
     {
-        userService.changeUserRole(userId, role, userDetails.getUsername());
+        userService.changeUserRole(id, role, userDetails.getUsername());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

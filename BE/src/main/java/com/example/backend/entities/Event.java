@@ -31,8 +31,7 @@ public class Event
             generator = "events_sequence"
     )
     private int id;
-    @NotBlank
-    private String main_image;
+    private String main_image_url;
     @NotBlank
     private String title;
     @ManyToOne
