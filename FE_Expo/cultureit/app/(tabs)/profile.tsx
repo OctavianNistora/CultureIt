@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     toggleButton: {
-        marginTop: 30, // Move the button lower
+        marginTop: 30,
             backgroundColor: '#F7BA4B',
             padding: 15,
             borderRadius: 10,
