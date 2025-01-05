@@ -25,7 +25,7 @@ public class EventService
     }
 
     @Transactional
-    public void addNewEvent(EventCreationDTO eventCreationDTO, String currentUserEmail)
+    public int addNewEvent(EventCreationDTO eventCreationDTO, String currentUserEmail)
     {
         User user = userRepository.findByEmail(currentUserEmail);
         if (user == null)
@@ -47,6 +47,8 @@ public class EventService
                                 eventCreationDTO.price());
 
         eventRepository.save(event);
+
+        return event.getId();
     }
 
     public List<MapPointDTO> getMapPoints(Double longitudeAfter, Double longitudeBefore, Double latitudeAfter, Double latitudeBefore, Integer page)
@@ -78,7 +80,7 @@ public class EventService
         Boolean isWishlisted = eventRepository.existsWisher(eventId, email);
 
         return new EventSummaryDTO(
-                event.getMain_image(),
+                event.getMain_image_url(),
                 event.getTitle(),
                 event.getLocation(),
                 event.getStart_date(),
@@ -125,7 +127,7 @@ public class EventService
         return events.stream()
                 .map(event -> new EventTrendingSummaryDTO(
                         event.getId(),
-                        event.getMain_image(),
+                        event.getMain_image_url(),
                         event.getTitle())
                 ).toList();
     }

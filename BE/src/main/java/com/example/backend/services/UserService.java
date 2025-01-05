@@ -17,16 +17,15 @@ public class UserService
 {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Autowired
-    public UserService(UserRepository userRepository, EventRepository eventRepository)
+    public UserService(UserRepository userRepository, EventRepository eventRepository, PasswordEncoder passwordEncoder)
     {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -110,7 +109,7 @@ public class UserService
         return wishlist.stream()
                 .map(event -> new EventWishlistedItemDTO(
                         event.getId(),
-                        event.getMain_image(),
+                        event.getMain_image_url(),
                         event.getTitle(),
                         event.getLocation(),
                         event.getStart_date().toString(),

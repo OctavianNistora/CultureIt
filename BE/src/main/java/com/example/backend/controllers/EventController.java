@@ -1,6 +1,7 @@
 package com.example.backend.controllers;
 
 import com.example.backend.dtos.*;
+import com.example.backend.services.BucketService;
 import com.example.backend.services.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -10,10 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,10 +26,12 @@ import java.util.List;
 public class EventController
 {
     private final EventService eventService;
+    private final BucketService bucketService;
 
-    public EventController(EventService eventService)
+    public EventController(EventService eventService, BucketService bucketService)
     {
         this.eventService = eventService;
+        this.bucketService = bucketService;
     }
 
     @Operation(summary = "Create a new event")
@@ -36,10 +41,14 @@ public class EventController
             content = @Content)
     @ApiResponse(responseCode = "401", description = "Unauthorized",
             content = @Content)
-    @PostMapping
-    public void createEvent(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody EventCreationDTO event)
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Integer> createEvent(@AuthenticationPrincipal UserDetails userDetails,
+                                               @Valid @RequestPart("details")  EventCreationDTO event,
+                                               @RequestPart("image") MultipartFile file)
     {
-        eventService.addNewEvent(event, userDetails.getUsername());
+        int eventId = eventService.addNewEvent(event, userDetails.getUsername());
+        bucketService.uploadFile(eventId, file, userDetails.getUsername());
+        return new ResponseEntity<>(eventId, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get events")
@@ -70,10 +79,10 @@ public class EventController
             content = @Content)
     @ApiResponse(responseCode = "401", description = "Unauthorized",
             content = @Content)
-    @GetMapping("/{eventId}/summary")
-    public ResponseEntity<EventSummaryDTO> getEventSummary(@AuthenticationPrincipal UserDetails userDetails, @PathVariable int eventId)
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<EventSummaryDTO> getEventSummary(@AuthenticationPrincipal UserDetails userDetails, @PathVariable int id)
     {
-        EventSummaryDTO eventSummary = eventService.getEventSummary(eventId, userDetails.getUsername());
+        EventSummaryDTO eventSummary = eventService.getEventSummary(id, userDetails.getUsername());
         return new ResponseEntity<>(eventSummary, HttpStatus.OK);
     }
 
@@ -85,10 +94,10 @@ public class EventController
             content = @Content)
     @ApiResponse(responseCode = "401", description = "Unauthorized",
             content = @Content)
-    @GetMapping("/{eventId}/details")
-    public ResponseEntity<EventDetailsDTO> getEventDetails(@PathVariable int eventId)
+    @GetMapping("/{id}/details")
+    public ResponseEntity<EventDetailsDTO> getEventDetails(@PathVariable int id)
     {
-        EventDetailsDTO eventDetails = eventService.getEventDetails(eventId);
+        EventDetailsDTO eventDetails = eventService.getEventDetails(id);
         return new ResponseEntity<>(eventDetails, HttpStatus.OK);
     }
 
