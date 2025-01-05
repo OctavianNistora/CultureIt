@@ -78,7 +78,7 @@ public class EventService
         Boolean isWishlisted = eventRepository.existsWisher(eventId, email);
 
         return new EventSummaryDTO(
-                event.getMain_image(),
+                event.getMain_image_url(),
                 event.getTitle(),
                 event.getLocation(),
                 event.getStart_date(),
@@ -125,7 +125,7 @@ public class EventService
         return events.stream()
                 .map(event -> new EventTrendingSummaryDTO(
                         event.getId(),
-                        event.getMain_image(),
+                        event.getMain_image_url(),
                         event.getTitle())
                 ).toList();
     }
