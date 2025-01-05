@@ -41,10 +41,13 @@ public class EventController
             content = @Content)
     @ApiResponse(responseCode = "401", description = "Unauthorized",
             content = @Content)
-    @PostMapping
-    public ResponseEntity<Integer> createEvent(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody EventCreationDTO event)
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Integer> createEvent(@AuthenticationPrincipal UserDetails userDetails,
+                                               @Valid @RequestPart("details")  EventCreationDTO event,
+                                               @RequestPart("image") MultipartFile file)
     {
         int eventId = eventService.addNewEvent(event, userDetails.getUsername());
+        bucketService.uploadFile(eventId, file, userDetails.getUsername());
         return new ResponseEntity<>(eventId, HttpStatus.CREATED);
     }
 
@@ -108,13 +111,5 @@ public class EventController
     {
         List<EventTrendingSummaryDTO> trendingEvents = eventService.getTrendingEvents(page);
         return new ResponseEntity<>(trendingEvents, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Upload event main image")
-    @ApiResponse(responseCode = "200", description = "Main image uploaded",
-            content = @Content)
-    @PutMapping(value = "/{id}/main-image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public void uploadEventMainImage(@AuthenticationPrincipal UserDetails userDetails, @PathVariable int id, @RequestParam("file") MultipartFile file) {
-        bucketService.uploadFile(id, file, userDetails.getUsername());
     }
 }
