@@ -1,67 +1,85 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router'; // Import the router for navigation
+import { useRouter } from 'expo-router';
+import axios from 'axios';
+import * as SecureStore from "expo-secure-store";
 
-interface Event {
-    id: number;
-    name: string;
-    photo: any;
-    description: string;
-    location: string;
-    datePeriod: string;
-    openingHours: string;
-}
+const Wishlist = () => {
+    const [wishlistEvents, setWishlistEvents] = useState<any[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
-export default function Favorites() {
-    const [favoriteEvents, setFavoriteEvents] = useState<Event[]>([
-        {
-            id: 1,
-            name: 'Art Exhibition',
-            photo: require('../../assets/images/art_exhibition.jpg'),
-            description: 'An inspiring art exhibition.',
-            location: 'Art Gallery, Downtown',
-            datePeriod: 'Jan 1, 2024 - Jan 15, 2024',
-            openingHours: '10:00 AM - 6:00 PM',
-        },
-        {
-            id: 2,
-            name: 'Music Festival',
-            photo: require('../../assets/images/music_festival.jpg'),
-            description: 'Live music performances.',
-            location: 'City Park',
-            datePeriod: 'Feb 10, 2024 - Feb 12, 2024',
-            openingHours: '12:00 PM - 11:00 PM',
-        },
-        {
-            id: 3,
-            name: 'Food Fair',
-            photo: require('../../assets/images/food_fair.png'),
-            description: 'Taste the best local foods.',
-            location: 'Food Plaza, Central Square',
-            datePeriod: 'Mar 5, 2024 - Mar 10, 2024',
-            openingHours: '9:00 AM - 8:00 PM',
-        },
-    ]);
+    const userId = SecureStore.getItem('secure_user_id');
 
-    const removeFavorite = (eventId: number) => {
-        setFavoriteEvents((prevFavorites) => prevFavorites.filter((event) => event.id !== eventId));
+    useEffect(() => {
+        const fetchWishlist = async () => {
+            try {
+                const token = await SecureStore.getItemAsync('secure_token');
+                if (!token) {
+                    throw new Error('Authentication token is missing.');
+                }
+
+                const response = await axios.get(
+                    `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/wishlist`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                setWishlistEvents(response.data);
+            } catch (error) {
+                console.error("Error fetching wishlist:", error);
+                setError("Failed to load wishlist.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchWishlist();
+    }, []);
+
+    // Remove an event from wishlist
+    const removeFromWishlist = async (eventId: number) => {
+        try {
+            const token = await SecureStore.getItemAsync('secure_token');
+            if (!token) {
+                throw new Error('Authentication token is missing.');
+            }
+
+            await axios.delete(
+                `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/wishlist/${eventId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setWishlistEvents((prevWishlist) => prevWishlist.filter(event => event.id !== eventId));
+        } catch (error) {
+            console.error("Error removing event from wishlist:", error);
+            setError("Failed to remove event from wishlist.");
+        }
     };
 
-    // Handle navigation to the event details page
     const navigateToDetails = (eventId: number) => {
+        console.log(eventId);
         router.push({
-            pathname: `/details/summary`, // Assuming dynamic path is being used
-            params: { eventId },
+            pathname: `/details/summary`,
+            params: { id: eventId },
         });
     };
 
-    const renderEvent = ({ item }: { item: Event }) => (
-        <View className="flex-row justify-between items-center mb-4">
-            {/* Touchable to navigate to details page when image is clicked */}
-            <TouchableOpacity onPress={() => navigateToDetails(item.id)} className="flex-1">
+
+    const renderEvent = ({ item }: { item: any }) => (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <TouchableOpacity onPress={() => navigateToDetails(item.id)} style={{ flex: 1 }}>
                 <Image
-                    source={item.photo}
+                    source={{ uri: "https://placedog.net/500" }}
                     style={{
                         width: 120,
                         height: 120,
@@ -71,44 +89,62 @@ export default function Favorites() {
                 />
             </TouchableOpacity>
 
-            <View className="flex-1 ml-4">
-                {/* Touchable to navigate to details page when name is clicked */}
+            <View style={{ flex: 1, marginLeft: 12 }}>
                 <TouchableOpacity onPress={() => navigateToDetails(item.id)}>
-                    <Text className="text-xl font-inter_bold text-gray-800">{item.name}</Text>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#333' }}>{item.title}</Text>
                 </TouchableOpacity>
-                <Text className="text-sm text-gray-600">{item.location}</Text>
-                <Text className="text-sm text-gray-400">{item.datePeriod}</Text>
+                <Text style={{ fontSize: 14, color: '#555' }}>{item.location}</Text>
+                <Text style={{ fontSize: 14, color: '#777' }}>
+                    {new Date(item.startDate).toLocaleDateString()} - {new Date(item.endDate).toLocaleDateString()}
+                </Text>
             </View>
 
             <TouchableOpacity
-                onPress={() => removeFavorite(item.id)}
-                className="ml-4 justify-center items-center"
+                onPress={() => removeFromWishlist(item.id)}
                 style={{
                     backgroundColor: '#F7BA4B',
                     padding: 8,
                     borderRadius: 5,
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}
             >
-                <Text className="text-white font-inter_bold text-sm">Remove</Text>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Remove</Text>
             </TouchableOpacity>
         </View>
     );
 
-    return (
-        <SafeAreaView className="bg-white h-full">
-            <View className="px-4 py-6">
-                <Text className="text-3xl font-inter_bold text-gray-500 mb-4 text-center">
-                    Favorites
-                </Text>
-
-                <FlatList
-                    data={favoriteEvents}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={renderEvent}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 20 }}
-                />
+    if (loading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#F7BA4B" />
             </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: 'red', fontSize: 16 }}>{error}</Text>
+            </View>
+        );
+    }
+
+    return (
+        <SafeAreaView style={{ flex: 1, paddingHorizontal: 20, paddingTop: 20 }}>
+            <Text className="text-3xl font-inter_bold text-gray-500 mb-4 text-center">
+                Wishlist
+            </Text>
+
+            <FlatList
+                data={wishlistEvents}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderEvent}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+            />
         </SafeAreaView>
     );
-}
+};
+
+export default Wishlist;
