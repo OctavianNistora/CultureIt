@@ -33,6 +33,24 @@ export default function AddEvent() {
 
     const [imageUri, setImageUri] = useState<string | null>(null);
 
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (!permissionResult.granted) {
+            Alert.alert('Permission Required', 'Permission to access media library is required!');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri);
+        }
+    };
+
     const createEvent = async () => {
         try {
             const {
@@ -48,7 +66,7 @@ export default function AddEvent() {
                 price,
             } = form;
 
-            if (!title || !description || !imageUri) {
+            if (!title || !description || !location || !latitude || !longitude || !price || !startDate || !endDate || !startTime || !endTime || !imageUri) {
                 alert("Please fill all required fields and select an image.");
                 return;
             }
@@ -58,102 +76,77 @@ export default function AddEvent() {
                 throw new Error("Authentication token is missing.");
             }
 
+            const formData = new FormData();
 
-            const eventData = {
+
+            formData.append('details', JSON.stringify({
                 title,
                 description,
                 location,
                 latitude: parseFloat(latitude),
                 longitude: parseFloat(longitude),
-                start_date: startDate.toISOString().split("T")[0],
-                end_date: endDate.toISOString().split("T")[0],
-                start_time: startTime.toTimeString().split(" ")[0],
-                end_time: endTime.toTimeString().split(" ")[0],
+                start_date: startDate.toISOString().split('T')[0],
+                end_date: endDate.toISOString().split('T')[0],
+                start_time: startTime.toTimeString().split(' ')[0],
+                end_time: endTime.toTimeString().split(' ')[0],
                 price: parseFloat(price),
-            };
-
-            axios({
-                url: `${process.env.EXPO_PUBLIC_API_URL}/v1/events`,
-                method: "POST",
-                data: eventData,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            })
-                .then((response) => {
-                    console.log("Event created successfully:", response.data);
-                    alert("Event created successfully!");
+            }));
 
 
-                    setForm({
-                        title: '',
-                        description: '',
-                        location: '',
-                        latitude: '',
-                        longitude: '',
-                        startDate: new Date(),
-                        endDate: new Date(),
-                        startTime: new Date(),
-                        endTime: new Date(),
-                        price: '',
-                    });
-                    setImageUri(null);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        console.error("API error:", error.response.data);
-                        alert(error.response.data?.message || "Failed to create the event.");
-                    } else {
-                        console.error("Unexpected error:", error.message);
-                        alert("An unexpected error occurred. Please try again.");
-                    }
-                });
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error("Error creating event:", error.message);
-                alert("Failed to create the event. Please try again.");
+            if (imageUri) {
+                const imageName = imageUri.split('/').pop() || 'event-photo.jpg';
+
+
+                const imageFile = {
+                    uri: imageUri,
+                    name: imageName,
+                    type: 'image/jpg',
+                };
+
+
+                formData.append('image', imageFile as any);
+            }
+
+
+            const response = await axios.post(
+                `${process.env.EXPO_PUBLIC_API_URL}/v1/events`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("Event created successfully:", response.data);
+            alert("Event created successfully!");
+
+
+            setForm({
+                title: '',
+                description: '',
+                location: '',
+                latitude: '',
+                longitude: '',
+                startDate: new Date(),
+                endDate: new Date(),
+                startTime: new Date(),
+                endTime: new Date(),
+                price: '',
+            });
+            setImageUri(null);
+        } catch (error: any) {
+            if (error.response) {
+                console.error("API error:", error.response.data);
+                alert(error.response.data?.message || "Failed to create the event.");
             } else {
-                console.error("Unexpected error:", error);
-                alert("An unexpected error occurred.");
+                console.error("Unexpected error:", error.message);
+                alert("An unexpected error occurred. Please try again.");
             }
         }
     };
 
-    const pickImage = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-        if (!permissionResult.granted) {
-            Alert.alert('Permission Required', 'Permission to access media library is required!');
-            return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            //mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
-        });
-
-        if (!result.canceled) {
-            setImageUri(result.assets[0].uri);
-        }
-    };
-
-    const handleSubmit = async () => {
-        if (!form.title || !form.description || !imageUri) {
-            Alert.alert('Validation Error', 'Please fill all required fields and select an image.');
-            return;
-        }
-
-        try {
-
-            await createEvent();
-            console.log("Event creation successful");
-        } catch (error) {
-            console.error("Error during event creation:", error);
-            alert("Failed to create event. Please try again.");
-        }
-    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -242,7 +235,7 @@ export default function AddEvent() {
 
                     <CustomButton
                         title="Create Event"
-                        handlePress={handleSubmit}
+                        handlePress={createEvent}
                         containerStyles="mt-7"
                     />
                 </View>

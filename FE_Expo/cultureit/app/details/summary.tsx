@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import {View, Text, Image, StyleSheet, ActivityIndicator, Alert, ScrollView, TouchableOpacity} from 'react-native';
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 
+
 const EventSummary = () => {
     const [event, setEvent] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
+    const [isInWishlist, setIsInWishlist] = useState<boolean>(false);
 
     const route = useRoute();
-    const { id } = useLocalSearchParams();;
+    const { id } = useLocalSearchParams();
+    const userId = SecureStore.getItem('secure_user_id');
 
     useEffect(() => {
 
@@ -27,7 +29,7 @@ const EventSummary = () => {
                     }
                 );
                 setEvent(response.data);
-                console.log(response.data);
+                //console.log(response.data);
             } catch (err) {
                 console.error("Error fetching event data:", err);
                 setError("Failed to load event details.");
@@ -36,9 +38,88 @@ const EventSummary = () => {
             }
         };
 
+        const checkWishlistStatus = async () => {
+            try {
+                const token = await SecureStore.getItemAsync('secure_token');
+                if (!token) {
+                    throw new Error('Authentication token is missing.');
+                }
+
+
+                const response = await axios.get(
+                    `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/wishlist`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    }
+                );
+
+
+                const wishlist = response.data;
+                console.log(response.data);
+                const eventInWishlist = wishlist.some((item: any) => item.id.toString().trim() === id.toString().trim());
+                setIsInWishlist(eventInWishlist);
+                console.log(eventInWishlist);
+            } catch (error) {
+                console.error("Error checking wishlist status:", error);
+            }
+        };
+
         fetchEventSummary();
+        checkWishlistStatus();
     }, [id]);
 
+    const handleAddToWishlist = async () => {
+        try {
+            const token = await SecureStore.getItemAsync('secure_token');
+            if (!token) {
+                throw new Error('Authentication token is missing.');
+            }
+
+            console.log(id)
+
+            await axios.post(
+                `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/wishlist`,
+                id,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            setIsInWishlist(true);
+            Alert.alert('Success', 'Event added to wishlist!');
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            Alert.alert('Error', 'Failed to add event to wishlist.');
+        }
+    };
+
+    const handleRemoveFromWishlist = async () => {
+        try {
+            const token = await SecureStore.getItemAsync('secure_token');
+            if (!token) {
+                throw new Error('Authentication token is missing.');
+            }
+
+
+            await axios.delete(
+                `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/wishlist/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            setIsInWishlist(false);
+            Alert.alert('Success', 'Event removed from wishlist!');
+        } catch (error) {
+            console.error('Error removing from wishlist:', error);
+            Alert.alert('Error', 'Failed to remove event from wishlist.');
+        }
+    };
 
     if (loading) {
         return (
@@ -71,11 +152,13 @@ const EventSummary = () => {
             </View>
 
             <Image
-                source={{ uri: event.imageUri || 'https://fakeimg.pl/600x400' }}
+                source={{ uri: "https://placedog.net/500" }}
                 style={styles.image}
-                onError={() => {
+                onError={(e) => {
+                    console.log('Image loading error:', e.nativeEvent);
                     setError('Failed to load image');
                 }}
+                resizeMode="contain"
             />
 
             <Text style={styles.subtitle}>Event Description:</Text>
@@ -98,6 +181,16 @@ const EventSummary = () => {
 
             <Text style={styles.label}>Price:</Text>
             <Text style={styles.value}>${event.price}</Text>
+
+            <TouchableOpacity
+                style={styles.wishlistButton}
+                onPress={isInWishlist ? handleRemoveFromWishlist : handleAddToWishlist}
+            >
+                <Text style={styles.wishlistButtonText}>
+                    {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                </Text>
+            </TouchableOpacity>
+
         </ScrollView>
     );
 };
@@ -153,6 +246,20 @@ const styles = StyleSheet.create({
         color: '#f00',
         fontSize: 16,
         textAlign: 'center',
+    },
+
+    wishlistButton: {
+        backgroundColor: '#F7BA4B',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20,
+        marginBottom: 20
+    },
+
+    wishlistButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
 });
 
