@@ -75,12 +75,12 @@ public class EventService
         return events.stream().map(event -> new MapPointDTO(event.getId(), event.getLatitude(), event.getLongitude())).toList();
     }
 
-    public EventSummaryDTO getEventSummary(int eventId, String email)
+    public EventDetailsDTO getEventDetails(int eventId, String email)
     {
         Event event = eventRepository.findById(eventId).orElseThrow();
         Boolean isWishlisted = eventRepository.existsWisher(eventId, email);
 
-        return new EventSummaryDTO(
+        return new EventDetailsDTO(
                 event.getMain_image_url(),
                 event.getTitle(),
                 event.getLocation(),
@@ -89,17 +89,10 @@ public class EventService
                 event.getStart_time(),
                 event.getEnd_time(),
                 event.getPrice(),
-                isWishlisted
-        );
-    }
-
-    public EventDetailsDTO getEventDetails(int eventId)
-    {
-        Event event = eventRepository.findById(eventId).orElseThrow();
-
-        return new EventDetailsDTO(
+                isWishlisted,
                 event.getDescription(),
-                event.getCreated_by().getFirst_name() + " " + event.getCreated_by().getLast_name()
+                event.getCreated_by().getFirst_name() + " " + event.getCreated_by().getLast_name(),
+                event.getWebsite_link()
         );
     }
 

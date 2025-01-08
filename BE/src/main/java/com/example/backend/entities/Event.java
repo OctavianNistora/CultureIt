@@ -38,7 +38,7 @@ public class Event
     @JoinColumn(name = "created_by_id", nullable = false)
     private User created_by;
     private String description;
-    private String category;
+    private String website_link;
     @NotBlank
     private String location;
     @NotNull
@@ -64,12 +64,12 @@ public class Event
     @ManyToMany(mappedBy = "events_wishlist")
     private Set<User> wishers = new HashSet<>();
 
-    public Event(String title, User created_by, String description, String category, String location, Double latitude, Double longitude, LocalDate start_date, LocalDate end_date, LocalTime start_time, LocalTime end_time, Double price)
+    public Event(String title, User created_by, String description, String website_link, String location, Double latitude, Double longitude, LocalDate start_date, LocalDate end_date, LocalTime start_time, LocalTime end_time, Double price)
     {
         this.title = title;
         this.created_by = created_by;
         this.description = description;
-        this.category = category;
+        this.website_link = website_link;
         this.location = location;
         this.latitude = latitude;
         this.longitude = longitude;

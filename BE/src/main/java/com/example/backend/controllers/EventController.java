@@ -71,21 +71,6 @@ public class EventController
         return new ResponseEntity<>(mapPoints, HttpStatus.OK);
     }
 
-    @Operation(summary = "Get event summary")
-    @ApiResponse(responseCode = "200", description = "Event summary retrieved",
-            content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = EventSummaryDTO.class))})
-    @ApiResponse(responseCode = "400", description = "Invalid event ID",
-            content = @Content)
-    @ApiResponse(responseCode = "401", description = "Unauthorized",
-            content = @Content)
-    @GetMapping("/{id}/summary")
-    public ResponseEntity<EventSummaryDTO> getEventSummary(@AuthenticationPrincipal UserDetails userDetails, @PathVariable int id)
-    {
-        EventSummaryDTO eventSummary = eventService.getEventSummary(id, userDetails.getUsername());
-        return new ResponseEntity<>(eventSummary, HttpStatus.OK);
-    }
-
     @Operation(summary = "Get event details")
     @ApiResponse(responseCode = "200", description = "Event details retrieved",
             content = {@Content(mediaType = "application/json",
@@ -95,9 +80,10 @@ public class EventController
     @ApiResponse(responseCode = "401", description = "Unauthorized",
             content = @Content)
     @GetMapping("/{id}/details")
-    public ResponseEntity<EventDetailsDTO> getEventDetails(@PathVariable int id)
+    public ResponseEntity<EventDetailsDTO> getEventDetails(@AuthenticationPrincipal UserDetails userDetails,
+                                                           @PathVariable int id)
     {
-        EventDetailsDTO eventDetails = eventService.getEventDetails(id);
+        EventDetailsDTO eventDetails = eventService.getEventDetails(id, userDetails.getUsername());
         return new ResponseEntity<>(eventDetails, HttpStatus.OK);
     }
 
