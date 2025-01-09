@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -16,8 +16,10 @@ import { TimeFormField } from '@/components/TimeFormField';
 import CustomButton from '@/components/CustomButton';
 import * as SecureStore from 'expo-secure-store';
 import axios from "axios";
+import {useLocalSearchParams} from "expo-router";
 
 export default function AddEvent() {
+
     const [form, setForm] = useState({
         title: '',
         description: '',
@@ -31,6 +33,19 @@ export default function AddEvent() {
         price: '',
         website_link: '',
     });
+
+    const { lat, long } = useLocalSearchParams();
+
+    useEffect(() => {
+        if (lat && long) {
+            setForm((prevState) => ({
+                ...prevState,
+                latitude: String(lat),
+                longitude: String(long),
+            }));
+        }
+    }, [lat, long]);
+
 
     const [imageUri, setImageUri] = useState<string | null>(null);
 
@@ -68,7 +83,7 @@ export default function AddEvent() {
                 website_link
             } = form;
 
-            if (!title || !description || !location || !latitude || !longitude || !price || !startDate || !endDate || !startTime || !endTime || !imageUri) {
+            if (!title || !description || !location || !price || !startDate || !endDate || !startTime || !endTime || !imageUri) {
                 alert("Please fill all required fields and select an image.");
                 return;
             }
@@ -77,6 +92,7 @@ export default function AddEvent() {
             if (!token) {
                 throw new Error("Authentication token is missing.");
             }
+
 
             const formData = new FormData();
 
@@ -176,20 +192,6 @@ export default function AddEvent() {
                         title="Location"
                         value={form.location}
                         handleChangeText={(e) => setForm({ ...form, location: e })}
-                        otherStyles="mt-7"
-                    />
-
-                    <FormField
-                        title="Latitude"
-                        value={form.latitude}
-                        handleChangeText={(e) => setForm({ ...form, latitude: e })}
-                        otherStyles="mt-7"
-                    />
-
-                    <FormField
-                        title="Longitude"
-                        value={form.longitude}
-                        handleChangeText={(e) => setForm({ ...form, longitude: e })}
                         otherStyles="mt-7"
                     />
 

@@ -166,16 +166,6 @@ const EventSummary = () => {
                 resizeMode="contain"
             />
 
-            {/*<FastImage*/}
-            {/*    style={styles.image}*/}
-            {/*    source={{*/}
-            {/*        uri: event.mainImageUrl,*/}
-            {/*        priority: FastImage.priority.normal,*/}
-            {/*    }}*/}
-            {/*    resizeMode={FastImage.resizeMode.contain}*/}
-            {/*    onError={() => setError('Failed to load image')}*/}
-            {/*/>*/}
-
             <Text style={styles.subtitle}>Event Description:</Text>
             <Text style={styles.description}>{event.description}</Text>
 
