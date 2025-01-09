@@ -79,7 +79,7 @@ const Wishlist = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <TouchableOpacity onPress={() => navigateToDetails(item.id)} style={{ flex: 1 }}>
                 <Image
-                    source={{ uri: "https://placedog.net/500" }}
+                    source={{ uri: item.mainImageUrl }}
                     style={{
                         width: 120,
                         height: 120,

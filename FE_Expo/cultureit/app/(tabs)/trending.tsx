@@ -9,7 +9,6 @@ interface TrendingEvent {
     id: number;
     mainImageUrl: string;
     title: string;
-    //wishlistedCount: number;
 }
 
 const TrendingEvents = () => {
@@ -61,7 +60,7 @@ const TrendingEvents = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <TouchableOpacity onPress={() => navigateToDetails(item.id)} style={{ flex: 1 }}>
                 <Image
-                    source={{ uri: "https://placedog.net/500" }} //item.mainImageUrl
+                    source={{ uri: item.mainImageUrl }}
                     style={{
                         width: 120,
                         height: 120,

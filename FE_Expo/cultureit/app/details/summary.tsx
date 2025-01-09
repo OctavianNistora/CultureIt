@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
+import FastImage from 'react-native-fast-image';
+
 
 
 const EventSummary = () => {
@@ -30,6 +32,9 @@ const EventSummary = () => {
                 );
                 setEvent(response.data);
                 console.log(response.data);
+                console.log(event);
+
+
             } catch (err) {
                 console.error("Error fetching event data:", err);
                 setError("Failed to load event details.");
@@ -57,10 +62,9 @@ const EventSummary = () => {
 
 
                 const wishlist = response.data;
-                console.log(response.data);
                 const eventInWishlist = wishlist.some((item: any) => item.id.toString().trim() === id.toString().trim());
                 setIsInWishlist(eventInWishlist);
-                console.log(eventInWishlist);
+
             } catch (error) {
                 console.error("Error checking wishlist status:", error);
             }
@@ -152,7 +156,8 @@ const EventSummary = () => {
             </View>
 
             <Image
-                source={{ uri: "https://placedog.net/500" }}
+                // source={{ uri: "https://placedog.net/500" }}
+                source={{ uri: event.mainImage }}
                 style={styles.image}
                 onError={(e) => {
                     console.log('Image loading error:', e.nativeEvent);
@@ -160,6 +165,16 @@ const EventSummary = () => {
                 }}
                 resizeMode="contain"
             />
+
+            {/*<FastImage*/}
+            {/*    style={styles.image}*/}
+            {/*    source={{*/}
+            {/*        uri: event.mainImageUrl,*/}
+            {/*        priority: FastImage.priority.normal,*/}
+            {/*    }}*/}
+            {/*    resizeMode={FastImage.resizeMode.contain}*/}
+            {/*    onError={() => setError('Failed to load image')}*/}
+            {/*/>*/}
 
             <Text style={styles.subtitle}>Event Description:</Text>
             <Text style={styles.description}>{event.description}</Text>
