@@ -85,6 +85,15 @@ export default function Profile() {
         });
     };
 
+    const handleLogOut = () => {
+        SecureStore.deleteItemAsync('secure_token');
+        SecureStore.deleteItemAsync('secure_user_id');
+        SecureStore.deleteItemAsync('secure_role');
+
+        router.push('/log-in');
+    };
+
+
     if (loading) {
         return (
             <SafeAreaView style={styles.container}>
@@ -126,6 +135,13 @@ export default function Profile() {
                         <Text style={styles.buttonText}>
                             {user.is_publisher ? 'Switch to User' : 'Become a Publisher'}
                         </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.logoutButton}
+                        onPress={handleLogOut}
+                    >
+                        <Text style={styles.buttonText}>Log Out</Text>
                     </TouchableOpacity>
                 </View>
             )}
@@ -179,6 +195,13 @@ const styles = StyleSheet.create({
             padding: 15,
             borderRadius: 10,
             alignItems: 'center',
+    },
+    logoutButton: {
+        marginTop: 15,
+        backgroundColor: '#F7BA4B',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
     },
     buttonText: {
         color: 'white',
