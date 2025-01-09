@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {View, Text, Image, StyleSheet, ActivityIndicator, Alert, ScrollView, TouchableOpacity} from 'react-native';
+import {View, Text, Image, StyleSheet, ActivityIndicator, Alert, ScrollView, TouchableOpacity, Linking} from 'react-native';
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
@@ -21,7 +21,7 @@ const EventSummary = () => {
         const fetchEventSummary = async () => {
             try {
                 const response = await axios.get(
-                    `${process.env.EXPO_PUBLIC_API_URL}/v1/events/${id}/summary`,
+                    `${process.env.EXPO_PUBLIC_API_URL}/v1/events/${id}/details`,
                     {
                         headers: {
                             'Authorization': `Bearer ${await SecureStore.getItemAsync('secure_token')}`,
@@ -29,7 +29,7 @@ const EventSummary = () => {
                     }
                 );
                 setEvent(response.data);
-                //console.log(response.data);
+                console.log(response.data);
             } catch (err) {
                 console.error("Error fetching event data:", err);
                 setError("Failed to load event details.");
@@ -179,8 +179,11 @@ const EventSummary = () => {
             <Text style={styles.label}>End Time:</Text>
             <Text style={styles.value}>{event.endTime}</Text>
 
-            <Text style={styles.label}>Price:</Text>
-            <Text style={styles.value}>${event.price}</Text>
+            <Text style={styles.label}>Price (in local currency):</Text>
+            <Text style={styles.value}>{event.price}</Text>
+
+            <Text style={styles.label}>Link to Website:</Text>
+            <Text onPress={() => Linking.openURL(event.website)} style={styles.value2}>{event.website}</Text>
 
             <TouchableOpacity
                 style={styles.wishlistButton}
@@ -240,6 +243,11 @@ const styles = StyleSheet.create({
     value: {
         fontSize: 18,
         color: '#777',
+        marginBottom: 15,
+    },
+    value2: {
+        fontSize: 18,
+        color: '#2c88d3',
         marginBottom: 15,
     },
     errorText: {

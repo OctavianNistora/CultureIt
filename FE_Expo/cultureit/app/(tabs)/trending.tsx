@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router'; // Assuming you're using Expo Router
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import * as SecureStore from "expo-secure-store";
 

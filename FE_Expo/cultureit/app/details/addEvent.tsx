@@ -29,6 +29,7 @@ export default function AddEvent() {
         startTime: new Date(),
         endTime: new Date(),
         price: '',
+        website_link: '',
     });
 
     const [imageUri, setImageUri] = useState<string | null>(null);
@@ -64,6 +65,7 @@ export default function AddEvent() {
                 startTime,
                 endTime,
                 price,
+                website_link
             } = form;
 
             if (!title || !description || !location || !latitude || !longitude || !price || !startDate || !endDate || !startTime || !endTime || !imageUri) {
@@ -90,6 +92,7 @@ export default function AddEvent() {
                 start_time: startTime.toTimeString().split(' ')[0],
                 end_time: endTime.toTimeString().split(' ')[0],
                 price: parseFloat(price),
+                website_link
             }));
 
 
@@ -134,6 +137,7 @@ export default function AddEvent() {
                 startTime: new Date(),
                 endTime: new Date(),
                 price: '',
+                website_link: ''
             });
             setImageUri(null);
         } catch (error: any) {
@@ -214,9 +218,16 @@ export default function AddEvent() {
                     />
 
                     <FormField
-                        title="Price"
+                        title="Price (in local currency)"
                         value={form.price}
                         handleChangeText={(e) => setForm({ ...form, price: e })}
+                        otherStyles="mt-7"
+                    />
+
+                    <FormField
+                        title="Link to Website"
+                        value={form.website_link}
+                        handleChangeText={(e) => setForm({ ...form, website_link: e })}
                         otherStyles="mt-7"
                     />
 

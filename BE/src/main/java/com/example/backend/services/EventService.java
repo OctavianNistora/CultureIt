@@ -36,8 +36,7 @@ public class EventService
         Event event = new Event(eventCreationDTO.title(),
                                 user,
                                 eventCreationDTO.description(),
-                                //eventCreationDTO.category()
-                                "category",
+                                eventCreationDTO.website_link(),
                                 eventCreationDTO.location(),
                                 eventCreationDTO.latitude(),
                                 eventCreationDTO.longitude(),
