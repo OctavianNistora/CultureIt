@@ -48,7 +48,7 @@ public class AuthController {
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.email());
         User user = userRepository.findByEmail(authenticationRequest.email());
-        return new AuthDTO(user.getId(), jwtUtil.generateToken(userDetails));
+        return new AuthDTO(jwtUtil.generateToken(userDetails), user.getId(), user.getIs_publisher() ? "publisher" : "user");
     }
 
     @Operation(summary = "Verify token")
@@ -58,6 +58,6 @@ public class AuthController {
     @GetMapping()
     public AuthDTO verifyToken(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername());
-        return new AuthDTO(user.getId(), jwtUtil.generateToken(userDetails));
+        return new AuthDTO(jwtUtil.generateToken(userDetails), user.getId(), user.getIs_publisher() ? "publisher" : "user");
     }
 }

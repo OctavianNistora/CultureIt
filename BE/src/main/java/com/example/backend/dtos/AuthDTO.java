@@ -1,5 +1,5 @@
 package com.example.backend.dtos;
 
-public record AuthDTO(int userId, String token)
+public record AuthDTO(String token, int userId, String role)
 {
 }
