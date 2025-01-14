@@ -29,11 +29,11 @@ export default function App() {
                     );
 
                     if (response.status === 200) {
-                         
-                        const { token: newToken, userId: newUserId, role: newUserRole } = response.data;
-                        await SecureStore.setItemAsync('secure_token', newToken);
-                        await SecureStore.setItemAsync('secure_user_id', newUserId);
-                        await SecureStore.setItemAsync('secure_user_role', newUserRole);
+                        console.log(response.data);
+
+                        await SecureStore.setItemAsync('secure_token', response.data.token);
+                        await SecureStore.setItemAsync('secure_user_id', response.data.userId.toString());
+                        await SecureStore.setItemAsync('secure_user_role', response.data.role);
 
                         router.push('/map');
                     } else {
