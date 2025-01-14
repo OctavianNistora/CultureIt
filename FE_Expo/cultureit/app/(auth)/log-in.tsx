@@ -26,10 +26,11 @@ export default function LogIn() {
       method: "POST",
       data: form,
     }).then((res) => {
-      console.log(res.data.token)
+      console.log(res.data)
 
       SecureStore.setItem('secure_token', res.data.token);
       SecureStore.setItem('secure_user_id', res.data.userId.toString());
+      SecureStore.setItem('secure_user_role', res.data.role);
 
 
       router.push('/map');

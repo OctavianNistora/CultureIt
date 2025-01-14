@@ -21,7 +21,6 @@ export default function Profile() {
 
     const userId = SecureStore.getItem('secure_user_id');
 
-
     useEffect(() => {
 
         axios
@@ -88,7 +87,7 @@ export default function Profile() {
     const handleLogOut = () => {
         SecureStore.deleteItemAsync('secure_token');
         SecureStore.deleteItemAsync('secure_user_id');
-        SecureStore.deleteItemAsync('secure_role');
+        SecureStore.deleteItemAsync('secure_user_role');
 
         router.push('/log-in');
     };

@@ -22,7 +22,7 @@ export default function Map() {
     const [markers, setMarkers] = useState<EventMarker[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPublisher, setIsPublisher] = useState(false);
-    const [instructionText, setInstructionText] = useState("Hold the finger for 3 seconds on the location of th event you want to publish");
+    const [instructionText, setInstructionText] = useState("Hold a finger for 3 seconds on the location of the event you want to publish");
     const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
     const mapRef = useRef(null);
