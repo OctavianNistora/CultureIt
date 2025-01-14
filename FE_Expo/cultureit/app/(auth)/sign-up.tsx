@@ -89,6 +89,7 @@ export default function SignUp() {
                     })
                 }
                 placeholder="Select your date of birth"
+                otherStyles="mt-7"
             />
 
             <FormField

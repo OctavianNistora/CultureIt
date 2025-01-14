@@ -199,24 +199,28 @@ export default function AddEvent() {
                         title="Start Date"
                         value={form.startDate}
                         handleChangeDate={(date) => setForm({ ...form, startDate: date })}
+                        otherStyles="mt-7"
                     />
 
                     <DateFormField
                         title="End Date"
                         value={form.endDate}
                         handleChangeDate={(date) => setForm({ ...form, endDate: date })}
+                        otherStyles="mt-7"
                     />
 
                     <TimeFormField
                         title="Start Time"
                         value={form.startTime}
                         handleChangeTime={(time) => setForm({ ...form, startTime: time })}
+                        otherStyles="mt-7"
                     />
 
                     <TimeFormField
                         title="End Time"
                         value={form.endTime}
                         handleChangeTime={(time) => setForm({ ...form, endTime: time })}
+                        otherStyles="mt-7"
                     />
 
                     <FormField

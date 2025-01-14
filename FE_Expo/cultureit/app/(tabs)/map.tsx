@@ -1,6 +1,6 @@
 import { StyleSheet, View, ActivityIndicator, TouchableOpacity, Text, Alert } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import axios from 'axios';
 import { router, useFocusEffect } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -148,7 +148,7 @@ export default function Map() {
         <View style={styles.container}>
             <MapView
                 style={styles.map}
-                provider={PROVIDER_GOOGLE}
+                provider={PROVIDER_DEFAULT}
                 region={region}
                 onRegionChangeComplete={onRegionChange}
                 ref={mapRef}

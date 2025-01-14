@@ -34,7 +34,17 @@ export default function LogIn() {
 
 
       router.push('/map');
-    }).catch((err) => console.log("error", err))
+    }).catch((err) => {
+      console.error("Error:", err);
+
+      if (err.response?.status === 403) {
+        console.log("Wrong credentials");
+        alert("Invalid username or password. Please try again.");
+      } else {
+        console.log("An error occurred:", err.message);
+        alert("An unexpected error occurred. Please try again later.");
+      }
+    })
       .finally(() => setIsSubmitting(false))
   }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View, Platform } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface TimeFormFieldProps {
@@ -7,6 +7,7 @@ interface TimeFormFieldProps {
     value: Date;
     handleChangeTime: (time: Date) => void;
     placeholder?: string;
+    otherStyles?: string;
 }
 
 export function TimeFormField({
@@ -14,45 +15,59 @@ export function TimeFormField({
                                   value,
                                   handleChangeTime,
                                   placeholder = 'Select a time',
+                                  otherStyles,
                               }: TimeFormFieldProps) {
+    const [tempTime, setTempTime] = useState<Date>(value || new Date());
     const [showPicker, setShowPicker] = useState(false);
 
-    const onChange = (event: any, selectedTime?: Date) => {
-        setShowPicker(Platform.OS === 'ios'); // Keep the picker open for iOS
+    const openPicker = () => {
+        setTempTime(value || new Date());
+        setShowPicker(true);
+    };
+
+    const confirmTime = (selectedTime?: Date) => {
+        setShowPicker(false);
         if (selectedTime) {
             handleChangeTime(selectedTime);
         }
     };
 
+    const cancelPicker = () => {
+        setShowPicker(false);
+    };
+
     return (
-        <View style={{ marginVertical: 10 }}>
-
-            <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>{title}</Text>
-
+        <View className={`space-y-2 ${otherStyles}`}>
+            <Text className="text-base text-primary font-inter_bold">
+                {title}
+            </Text>
 
             <TouchableOpacity
-                onPress={() => setShowPicker(true)}
-                style={{
-                    height: 50,
-                    borderColor: '#ccc',
-                    borderWidth: 1,
-                    borderRadius: 10,
-                    paddingHorizontal: 10,
-                    justifyContent: 'center',
-                }}
+                onPress={openPicker}
+                className={`border-2 border-lighter_primary w-full h-16 px-4 bg-lighter_primary rounded-2xl justify-center
+                ${value ? 'border-black' : 'border-lighter_primary'}`}
             >
-                <Text style={{ color: value ? '#000' : '#aaa' }}>
-                    {value ? value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : placeholder}
+                <Text
+                    className={`text-base font-inter_regular ${value ? 'text-black' : 'text-gray-400'}`}
+                >
+                    {value
+                        ? value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : placeholder}
                 </Text>
             </TouchableOpacity>
 
-
             {showPicker && (
                 <DateTimePicker
-                    value={value || new Date()} // Default to the current time
+                    value={tempTime}
                     mode="time"
-                    display="default"
-                    onChange={onChange}
+                    display="spinner"
+                    onChange={(event, selectedTime) => {
+                        if (event.type === 'set') {
+                            confirmTime(selectedTime);
+                        } else {
+                            cancelPicker();
+                        }
+                    }}
                 />
             )}
         </View>
