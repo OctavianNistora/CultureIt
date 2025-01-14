@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import {useFocusEffect, useRouter} from 'expo-router';
 import axios from 'axios';
 import * as SecureStore from "expo-secure-store";
 
@@ -18,36 +18,38 @@ const TrendingEvents = () => {
     const [page, setPage] = useState<number>(0);
     const router = useRouter();
 
-    useEffect(() => {
-        const fetchTrendingEvents = async () => {
-            try {
-                const token = await SecureStore.getItemAsync('secure_token');
-                if (!token) {
-                    throw new Error('Authentication token is missing.');
-                }
-
-                const response = await axios.get(
-                    `${process.env.EXPO_PUBLIC_API_URL}/v1/events/trending`,
-                    {
-                        params: { page },
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchTrendingEvents = async () => {
+                try {
+                    const token = await SecureStore.getItemAsync('secure_token');
+                    if (!token) {
+                        throw new Error('Authentication token is missing.');
                     }
-                );
 
-                console.log(response.data);
-                setTrendingEvents(response.data);
-            } catch (error) {
-                console.error("Error fetching trending events:", error);
-                setError("Failed to load trending events.");
-            } finally {
-                setLoading(false);
-            }
-        };
+                    const response = await axios.get(
+                        `${process.env.EXPO_PUBLIC_API_URL}/v1/events/trending`,
+                        {
+                            params: { page },
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                            },
+                        }
+                    );
 
-        fetchTrendingEvents();
-    }, [page]);
+                    console.log(response.data);
+                    setTrendingEvents(response.data);
+                } catch (error) {
+                    console.error("Error fetching trending events:", error);
+                    setError("Failed to load trending events.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchTrendingEvents();
+        }, [page])
+    );
 
     const navigateToDetails = (eventId: number) => {
         router.push({

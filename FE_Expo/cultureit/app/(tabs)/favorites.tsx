@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import {useFocusEffect, useRouter} from 'expo-router';
 import axios from 'axios';
 import * as SecureStore from "expo-secure-store";
 
@@ -13,34 +13,36 @@ const Wishlist = () => {
 
     const userId = SecureStore.getItem('secure_user_id');
 
-    useEffect(() => {
-        const fetchWishlist = async () => {
-            try {
-                const token = await SecureStore.getItemAsync('secure_token');
-                if (!token) {
-                    throw new Error('Authentication token is missing.');
-                }
-
-                const response = await axios.get(
-                    `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/wishlist`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchWishlist = async () => {
+                try {
+                    const token = await SecureStore.getItemAsync('secure_token');
+                    if (!token) {
+                        throw new Error('Authentication token is missing.');
                     }
-                );
 
-                setWishlistEvents(response.data);
-            } catch (error) {
-                console.error("Error fetching wishlist:", error);
-                setError("Failed to load wishlist.");
-            } finally {
-                setLoading(false);
-            }
-        };
+                    const response = await axios.get(
+                        `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/wishlist`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                            },
+                        }
+                    );
 
-        fetchWishlist();
-    }, []);
+                    setWishlistEvents(response.data);
+                } catch (error) {
+                    console.error("Error fetching wishlist:", error);
+                    setError("Failed to load wishlist.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchWishlist();
+        }, [])
+    );
 
     // Remove an event from wishlist
     const removeFromWishlist = async (eventId: number) => {
