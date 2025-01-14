@@ -58,7 +58,6 @@ export function DateFormField({
                                 mode="date"
                                 display="spinner"
                                 onChange={(event, date) => {
-                                    setShowPicker(false);
                                     if (date) handleChangeDate(date);
                                 }}
                             />

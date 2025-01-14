@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, Modal, Button } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface TimeFormFieldProps {
@@ -25,11 +25,9 @@ export function TimeFormField({
         setShowPicker(true);
     };
 
-    const confirmTime = (selectedTime?: Date) => {
+    const confirmTime = () => {
+        handleChangeTime(tempTime);
         setShowPicker(false);
-        if (selectedTime) {
-            handleChangeTime(selectedTime);
-        }
     };
 
     const cancelPicker = () => {
@@ -38,9 +36,7 @@ export function TimeFormField({
 
     return (
         <View className={`space-y-2 ${otherStyles}`}>
-            <Text className="text-base text-primary font-inter_bold">
-                {title}
-            </Text>
+            <Text className="text-base text-primary font-inter_bold">{title}</Text>
 
             <TouchableOpacity
                 onPress={openPicker}
@@ -57,18 +53,45 @@ export function TimeFormField({
             </TouchableOpacity>
 
             {showPicker && (
-                <DateTimePicker
-                    value={tempTime}
-                    mode="time"
-                    display="spinner"
-                    onChange={(event, selectedTime) => {
-                        if (event.type === 'set') {
-                            confirmTime(selectedTime);
-                        } else {
-                            cancelPicker();
-                        }
-                    }}
-                />
+                <Modal
+                    transparent
+                    animationType="slide"
+                    visible={showPicker}
+                    onRequestClose={cancelPicker}
+                >
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'flex-end',
+                            backgroundColor: 'rgba(0,0,0,0.3)',
+                        }}
+                    >
+                        <View
+                            style={{
+                                backgroundColor: 'white',
+                                padding: 20,
+                                borderTopLeftRadius: 20,
+                                borderTopRightRadius: 20,
+                            }}
+                        >
+                            <DateTimePicker
+                                value={tempTime}
+                                mode="time"
+                                display="spinner"
+                                onChange={(event, selectedTime) => {
+                                    if (event.type === 'set') {
+                                        setTempTime(selectedTime || tempTime);
+                                    }
+                                }}
+                            />
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                <Button title="Cancel" onPress={cancelPicker} />
+                                <Button title="Done" onPress={confirmTime} />
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             )}
         </View>
     );
