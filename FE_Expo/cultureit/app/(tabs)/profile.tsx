@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import axios from 'axios'; // Import axios for API calls
+import axios from 'axios';
+import * as SecureStore from "expo-secure-store";
+import {router} from "expo-router";
 
 interface User {
     first_name: string;
@@ -17,27 +19,79 @@ export default function Profile() {
     const [error, setError] = useState<string | null>(null);
 
 
-    const userId = 3;
-
+    const userId = SecureStore.getItem('secure_user_id');
 
     useEffect(() => {
 
         axios
-            .get(`${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}`, {
+            .get(`${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/profile`, {
                 headers: {
-                    Authorization: `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4YW5kcnVAZ21haWwuY29tIiwiaWF0IjoxNzM0MDIyNDI1LCJleHAiOjE3MzQyODE2MjV9.I0sWvinKIVvxyaq8QwYOcNm_6slgmri8AvXR-BzJ-uzDQoL1K2mee6d26Fv-eBApqn-2Bqy8Jutoja8wq089rA`,
+                    Authorization: `Bearer ${SecureStore.getItem('secure_token')}`,
                 },
             })
             .then((response) => {
                 setUser(response.data);
                 setLoading(false);
+                console.log(response.data);
             })
             .catch((err) => {
                 console.error('Error fetching user data:', err);
-                setError('Failed to load user data'); // Set error message
+                setError('Failed to load user data');
                 setLoading(false);
             });
+
+
     }, [userId]);
+
+
+
+    const handleToggleRole = () => {
+        if (!user) return;
+
+
+
+        const newRole = user.is_publisher ? 'user' : 'publisher';
+        SecureStore.setItem('secure_role', newRole);
+
+        SecureStore.getItemAsync('secure_token').then((token) => {
+            if (!token) throw new Error("Token not found");
+
+            axios({
+                url: `${process.env.EXPO_PUBLIC_API_URL}/v1/users/${userId}/role`,
+                method: "PUT",
+                data: JSON.stringify(newRole),
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(() => {
+                    setUser((prevUser) => prevUser ? { ...prevUser, is_publisher: !prevUser.is_publisher } : prevUser);
+
+                    const roleText = newRole === 'publisher' ? 'You are now a publisher!' : 'You are now a user!';
+                    Alert.alert("Success", roleText);
+                })
+                .catch((err) => {
+                    console.error('Error changing role:', err);
+                    Alert.alert("Error", "Failed to change role. Please try again.");
+                })
+                .finally(() => {
+                    console.log("Role toggle attempt completed.");
+                });
+        }).catch((err) => {
+            console.error('Error retrieving token:', err);
+            Alert.alert("Error", "Failed to retrieve token. Please try again.");
+        });
+    };
+
+    const handleLogOut = () => {
+        SecureStore.deleteItemAsync('secure_token');
+        SecureStore.deleteItemAsync('secure_user_id');
+        SecureStore.deleteItemAsync('secure_user_role');
+
+        router.push('/log-in');
+    };
+
 
     if (loading) {
         return (
@@ -73,6 +127,21 @@ export default function Profile() {
                     <Text style={styles.publisherStatus}>
                         Publisher Status: {user.is_publisher ? 'Publisher' : 'Not a Publisher'}
                     </Text>
+                    <TouchableOpacity
+                        style={styles.toggleButton}
+                        onPress={handleToggleRole}
+                    >
+                        <Text style={styles.buttonText}>
+                            {user.is_publisher ? 'Switch to User' : 'Become a Publisher'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.logoutButton}
+                        onPress={handleLogOut}
+                    >
+                        <Text style={styles.buttonText}>Log Out</Text>
+                    </TouchableOpacity>
                 </View>
             )}
         </SafeAreaView>
@@ -118,6 +187,25 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
         marginTop: 5,
+    },
+    toggleButton: {
+        marginTop: 30,
+            backgroundColor: '#F7BA4B',
+            padding: 15,
+            borderRadius: 10,
+            alignItems: 'center',
+    },
+    logoutButton: {
+        marginTop: 15,
+        backgroundColor: '#F7BA4B',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+            fontWeight: 'bold',
+            fontSize: 16,
     },
     errorText: {
         fontSize: 18,

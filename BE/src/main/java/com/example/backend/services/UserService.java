@@ -17,16 +17,15 @@ public class UserService
 {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Autowired
-    public UserService(UserRepository userRepository, EventRepository eventRepository)
+    public UserService(UserRepository userRepository, EventRepository eventRepository, PasswordEncoder passwordEncoder)
     {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -55,7 +54,8 @@ public class UserService
                 user.getEmail(),
                 user.getFirst_name(),
                 user.getLast_name(),
-                user.getDate_of_birth()
+                user.getDate_of_birth(),
+                user.getIs_publisher()
         );
     }
 
@@ -109,7 +109,7 @@ public class UserService
         return wishlist.stream()
                 .map(event -> new EventWishlistedItemDTO(
                         event.getId(),
-                        event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                        event.getMain_image_url(),
                         event.getTitle(),
                         event.getLocation(),
                         event.getStart_date().toString(),
@@ -129,6 +129,32 @@ public class UserService
         Event event = eventRepository.findById(eventId).orElseThrow();
 
         user.getEvents_wishlist().remove(event);
+
+        userRepository.save(user);
+    }
+
+    public void changeUserRole(int id, String role, String currentUserEmail)
+    {
+        User user = userRepository.findById(id).orElseThrow();
+        if (!user.getEmail().equals(currentUserEmail))
+        {
+            throw new RuntimeException("Referenced user is not the same as the authenticated user");
+        }
+
+        System.out.println(role);
+        role = role.substring(1, role.length() - 1);
+
+        switch (role)
+        {
+            case "publisher":
+                user.setIs_publisher(true);
+                break;
+            case "user":
+                user.setIs_publisher(false);
+                break;
+            default:
+                throw new RuntimeException("Invalid role");
+        }
 
         userRepository.save(user);
     }

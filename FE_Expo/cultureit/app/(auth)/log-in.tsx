@@ -5,6 +5,9 @@ import {FormField} from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import {Link, router} from "expo-router";
 import axios from "axios";
+import * as SecureStore from 'expo-secure-store';
+
+
 
 export default function LogIn() {
 
@@ -19,13 +22,29 @@ export default function LogIn() {
     setIsSubmitting(true);
 
     axios({
-      url: `${process.env.EXPO_PUBLIC_API_URL}/v1/auth/token`,
+      url: `${process.env.EXPO_PUBLIC_API_URL}/v1/auth`,
       method: "POST",
       data: form,
     }).then((res) => {
       console.log(res.data)
+
+      SecureStore.setItem('secure_token', res.data.token);
+      SecureStore.setItem('secure_user_id', res.data.userId.toString());
+      SecureStore.setItem('secure_user_role', res.data.role);
+
+
       router.push('/map');
-    }).catch((err) => console.log("error", err))
+    }).catch((err) => {
+      console.error("Error:", err);
+
+      if (err.response?.status === 403) {
+        console.log("Wrong credentials");
+        alert("Invalid username or password. Please try again.");
+      } else {
+        console.log("An error occurred:", err.message);
+        alert("An unexpected error occurred. Please try again later.");
+      }
+    })
       .finally(() => setIsSubmitting(false))
   }
 

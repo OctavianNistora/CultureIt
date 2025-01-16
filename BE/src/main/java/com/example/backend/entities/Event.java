@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -30,16 +31,14 @@ public class Event
             generator = "events_sequence"
     )
     private int id;
-    @OneToOne
-    @JoinColumn(name = "main_image_id")
-    private EventPhoto main_image;
+    private String main_image_url;
     @NotBlank
     private String title;
     @ManyToOne
     @JoinColumn(name = "created_by_id", nullable = false)
     private User created_by;
     private String description;
-    private String category;
+    private String website_link;
     @NotBlank
     private String location;
     @NotNull
@@ -58,29 +57,19 @@ public class Event
     @Column(columnDefinition = "TIME")
     @NotNull
     private LocalTime end_time;
-    @Column(columnDefinition ="decimal(8,2) default '0.00'")
+    @Column(columnDefinition ="decimal(8,2)")
+    @ColumnDefault("0.0")
     private Double price;
-
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    private Set<EventPhoto> photos;
 
     @ManyToMany(mappedBy = "events_wishlist")
     private Set<User> wishers = new HashSet<>();
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(
-            name = "event_visitors_mapping",
-            joinColumns = @JoinColumn(name = "event_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> visitors = new HashSet<>();
-
-    public Event(String title, User created_by, String description, String category, String location, Double latitude, Double longitude, LocalDate start_date, LocalDate end_date, LocalTime start_time, LocalTime end_time, Double price)
+    public Event(String title, User created_by, String description, String website_link, String location, Double latitude, Double longitude, LocalDate start_date, LocalDate end_date, LocalTime start_time, LocalTime end_time, Double price)
     {
         this.title = title;
         this.created_by = created_by;
         this.description = description;
-        this.category = category;
+        this.website_link = website_link;
         this.location = location;
         this.latitude = latitude;
         this.longitude = longitude;

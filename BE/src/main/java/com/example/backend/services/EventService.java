@@ -25,7 +25,7 @@ public class EventService
     }
 
     @Transactional
-    public void addNewEvent(EventCreationDTO eventCreationDTO, String currentUserEmail)
+    public int addNewEvent(EventCreationDTO eventCreationDTO, String currentUserEmail)
     {
         User user = userRepository.findByEmail(currentUserEmail);
         if (user == null)
@@ -36,7 +36,7 @@ public class EventService
         Event event = new Event(eventCreationDTO.title(),
                                 user,
                                 eventCreationDTO.description(),
-                                eventCreationDTO.category(),
+                                eventCreationDTO.website_link(),
                                 eventCreationDTO.location(),
                                 eventCreationDTO.latitude(),
                                 eventCreationDTO.longitude(),
@@ -47,6 +47,8 @@ public class EventService
                                 eventCreationDTO.price());
 
         eventRepository.save(event);
+
+        return event.getId();
     }
 
     public List<MapPointDTO> getMapPoints(Double longitudeAfter, Double longitudeBefore, Double latitudeAfter, Double latitudeBefore, Integer page)
@@ -58,7 +60,13 @@ public class EventService
         }
         else
         {
-            pageable = PageRequest.of(0, (int) eventRepository.count());
+            long recordCount = eventRepository.count();
+            if (recordCount == 0)
+            {
+                return List.of();
+            }
+
+            pageable = PageRequest.of(0, (int) recordCount);
         }
 
         List<Event> events = eventRepository.findByEventsWithinArea(longitudeAfter, longitudeBefore, latitudeAfter, latitudeBefore, pageable);
@@ -66,13 +74,13 @@ public class EventService
         return events.stream().map(event -> new MapPointDTO(event.getId(), event.getLatitude(), event.getLongitude())).toList();
     }
 
-    public EventSummaryDTO getEventSummary(int eventId, String email)
+    public EventDetailsDTO getEventDetails(int eventId, String email)
     {
         Event event = eventRepository.findById(eventId).orElseThrow();
         Boolean isWishlisted = eventRepository.existsWisher(eventId, email);
 
-        return new EventSummaryDTO(
-                event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+        return new EventDetailsDTO(
+                event.getMain_image_url(),
                 event.getTitle(),
                 event.getLocation(),
                 event.getStart_date(),
@@ -80,21 +88,10 @@ public class EventService
                 event.getStart_time(),
                 event.getEnd_time(),
                 event.getPrice(),
-                isWishlisted
-        );
-    }
-
-    public EventDetailsDTO getEventDetails(int eventId)
-    {
-        Event event = eventRepository.findById(eventId).orElseThrow();
-        Integer visitorCount = eventRepository.countVisitors(eventId);
-        List<String> photos = eventRepository.getNewestTwoPhotos(eventId);
-
-        return new EventDetailsDTO(
+                isWishlisted,
                 event.getDescription(),
                 event.getCreated_by().getFirst_name() + " " + event.getCreated_by().getLast_name(),
-                visitorCount,
-                photos
+                event.getWebsite_link()
         );
     }
 
@@ -107,7 +104,13 @@ public class EventService
         }
         else
         {
-            pageable = PageRequest.of(0, (int) eventRepository.count());
+            long recordCount = eventRepository.count();
+            if (recordCount == 0)
+            {
+                return List.of();
+            }
+
+            pageable = PageRequest.of(0, (int) recordCount);
         }
 
         List<Event> events = eventRepository.findTrendingEvents(pageable);
@@ -117,7 +120,7 @@ public class EventService
         return events.stream()
                 .map(event -> new EventTrendingSummaryDTO(
                         event.getId(),
-                        event.getMain_image() != null ? event.getMain_image().getPhoto_url() : null,
+                        event.getMain_image_url(),
                         event.getTitle())
                 ).toList();
     }

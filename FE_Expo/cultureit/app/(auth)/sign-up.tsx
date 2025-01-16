@@ -18,13 +18,26 @@ export default function SignUp() {
     confirmPassword: "",
   })
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+    const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
   const submit = () => {
     setIsSubmitting(true);
 
     const {confirmPassword, ...payload} = form
     //payload.date_of_birth = payload.date_of_birth.toString();
+
+    if (!validateEmail(form.email)) {
+          setEmailError("Please input a valid email");
+          setIsSubmitting(false);
+          return;
+      }
+    setEmailError(null);
 
     axios({
       url: `${process.env.EXPO_PUBLIC_API_URL}/v1/users`,
@@ -76,19 +89,25 @@ export default function SignUp() {
                     })
                 }
                 placeholder="Select your date of birth"
+                otherStyles="mt-7"
             />
 
-          <FormField
-            title="Email"
-            value={form.email}
-            handleChangeText={(e) => setForm({
-              ...form,
-              email: e
-            })}
-            otherStyles="mt-7"
-            keyboardType="email-address"
-            autoComplete="email"
-          />
+            <FormField
+                title="Email"
+                value={form.email}
+                handleChangeText={(e) => setForm({
+                    ...form,
+                    email: e
+                })}
+                otherStyles="mt-7"
+                autoComplete="email"
+            />
+
+            {emailError && (
+                <Text className="text-red-500 text-sm mt-1">
+                    {emailError}
+                </Text>
+            )}
 
           <FormField
             title="Password"

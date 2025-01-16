@@ -1,0 +1,295 @@
+import React, {useEffect, useState} from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Image,
+    StyleSheet,
+    ScrollView,
+    Alert,
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FormField } from '@/components/FormField';
+import { DateFormField } from '@/components/DateFormField';
+import { TimeFormField } from '@/components/TimeFormField';
+import CustomButton from '@/components/CustomButton';
+import * as SecureStore from 'expo-secure-store';
+import axios from "axios";
+import {useLocalSearchParams} from "expo-router";
+
+export default function AddEvent() {
+
+    const [form, setForm] = useState({
+        title: '',
+        description: '',
+        location: '',
+        latitude: '',
+        longitude: '',
+        startDate: new Date(),
+        endDate: new Date(),
+        startTime: new Date(),
+        endTime: new Date(),
+        price: '',
+        website_link: '',
+    });
+
+    const { lat, long } = useLocalSearchParams();
+
+    useEffect(() => {
+        if (lat && long) {
+            setForm((prevState) => ({
+                ...prevState,
+                latitude: String(lat),
+                longitude: String(long),
+            }));
+        }
+    }, [lat, long]);
+
+
+    const [imageUri, setImageUri] = useState<string | null>(null);
+
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (!permissionResult.granted) {
+            Alert.alert('Permission Required', 'Permission to access media library is required!');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri);
+        }
+    };
+
+    const createEvent = async () => {
+        try {
+            const {
+                title,
+                description,
+                location,
+                latitude,
+                longitude,
+                startDate,
+                endDate,
+                startTime,
+                endTime,
+                price,
+                website_link
+            } = form;
+
+            if (!title || !description || !location || !price || !startDate || !endDate || !startTime || !endTime || !imageUri) {
+                alert("Please fill all required fields and select an image.");
+                return;
+            }
+
+            const token = await SecureStore.getItemAsync("secure_token");
+            if (!token) {
+                throw new Error("Authentication token is missing.");
+            }
+
+
+            const formData = new FormData();
+
+
+            formData.append('details', JSON.stringify({
+                title,
+                description,
+                location,
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude),
+                start_date: startDate.toISOString().split('T')[0],
+                end_date: endDate.toISOString().split('T')[0],
+                start_time: startTime.toTimeString().split(' ')[0],
+                end_time: endTime.toTimeString().split(' ')[0],
+                price: parseFloat(price),
+                website_link
+            }));
+
+
+            if (imageUri) {
+                const imageName = imageUri.split('/').pop() || 'event-photo.jpg';
+
+
+                const imageFile = {
+                    uri: imageUri,
+                    name: imageName,
+                    type: 'image/jpg',
+                };
+
+
+                formData.append('image', imageFile as any);
+            }
+
+
+            const response = await axios.post(
+                `${process.env.EXPO_PUBLIC_API_URL}/v1/events`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("Event created successfully:", response.data);
+            alert("Event created successfully!");
+
+
+            setForm({
+                title: '',
+                description: '',
+                location: '',
+                latitude: '',
+                longitude: '',
+                startDate: new Date(),
+                endDate: new Date(),
+                startTime: new Date(),
+                endTime: new Date(),
+                price: '',
+                website_link: ''
+            });
+            setImageUri(null);
+        } catch (error: any) {
+            if (error.response) {
+                console.error("API error:", error.response.data);
+                alert(error.response.data?.message || "Failed to create the event.");
+            } else {
+                console.error("Unexpected error:", error.message);
+                alert("An unexpected error occurred. Please try again.");
+            }
+        }
+    };
+
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <ScrollView>
+                <View style={styles.form}>
+                    <Text style={styles.title}>Add Event</Text>
+
+                    <FormField
+                        title="Title"
+                        value={form.title}
+                        handleChangeText={(e) => setForm({ ...form, title: e })}
+                        otherStyles="mt-7"
+                    />
+
+                    <FormField
+                        title="Description"
+                        value={form.description}
+                        handleChangeText={(e) => setForm({ ...form, description: e })}
+                        otherStyles="mt-7"
+                    />
+
+                    <FormField
+                        title="Location"
+                        value={form.location}
+                        handleChangeText={(e) => setForm({ ...form, location: e })}
+                        otherStyles="mt-7"
+                    />
+
+                    <DateFormField
+                        title="Start Date"
+                        value={form.startDate}
+                        handleChangeDate={(date) => setForm({ ...form, startDate: date })}
+                        otherStyles="mt-7"
+                    />
+
+                    <DateFormField
+                        title="End Date"
+                        value={form.endDate}
+                        handleChangeDate={(date) => setForm({ ...form, endDate: date })}
+                        otherStyles="mt-7"
+                    />
+
+                    <TimeFormField
+                        title="Start Time"
+                        value={form.startTime}
+                        handleChangeTime={(time) => setForm({ ...form, startTime: time })}
+                        otherStyles="mt-7"
+                    />
+
+                    <TimeFormField
+                        title="End Time"
+                        value={form.endTime}
+                        handleChangeTime={(time) => setForm({ ...form, endTime: time })}
+                        otherStyles="mt-7"
+                    />
+
+                    <FormField
+                        title="Price (in local currency)"
+                        value={form.price}
+                        handleChangeText={(e) => setForm({ ...form, price: e })}
+                        otherStyles="mt-7"
+                    />
+
+                    <FormField
+                        title="Link to Website"
+                        value={form.website_link}
+                        handleChangeText={(e) => setForm({ ...form, website_link: e })}
+                        otherStyles="mt-7"
+                    />
+
+                    <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+                        <Text style={styles.imagePickerText}>
+                            {imageUri ? 'Change Event Photo' : 'Select Event Photo'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {imageUri && (
+                        <Image
+                            source={{ uri: imageUri }}
+                            style={styles.imagePreview}
+                        />
+                    )}
+
+                    <CustomButton
+                        title="Create Event"
+                        handlePress={createEvent}
+                        containerStyles="mt-7"
+                    />
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    form: {
+        padding: 16,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    imagePicker: {
+        marginTop: 20,
+        backgroundColor: '#F7BA4B',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    imagePickerText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    imagePreview: {
+        marginTop: 10,
+        width: '100%',
+        height: 200,
+        borderRadius: 10,
+    },
+});
